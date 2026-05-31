@@ -4,12 +4,11 @@
 
 Please report security issues **privately** — do not open a public issue.
 
-- Preferred: GitHub **"Report a vulnerability"** (Security → Advisories) on the
-  affected repository.
-- Alternatively: email `<security-contact@example.com>`. <!-- TODO: set contact -->
+Use the **"Report a vulnerability"** button on the **Security** tab of the affected
+repository. Private vulnerability reporting is enabled on all public repositories.
 
-Include affected version/commit, reproduction steps, and impact. You'll get an
-acknowledgement within a few days and a coordinated fix + disclosure.
+Include the affected version/commit, reproduction steps, and impact. You'll get an
+acknowledgement within a few days, followed by a coordinated fix and disclosure.
 
 ## Supported versions
 
