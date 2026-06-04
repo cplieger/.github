@@ -37,6 +37,13 @@
         "gomod"
       ],
       "groupName": "Go dependencies"
+    },
+    {
+      "description": "devDependencies use scope 'devdeps' (commit prefix 'chore(devdeps)') so cliff can skip them — they don't ship to consumers and shouldn't trigger version bumps. Runtime/peer deps keep the default 'deps' scope which cliff treats as a release.",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "semanticCommitScope": "devdeps"
     }
   ],
   "customManagers": [
