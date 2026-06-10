@@ -2,6 +2,12 @@ name: Bug report
 description: Report a defect.
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill out the fields
+        below so the issue can be reproduced. For security vulnerabilities,
+        do not use this form — follow the security policy instead.
   - type: textarea
     id: what
     attributes:
@@ -23,3 +29,22 @@ body:
       description: Library version / commit, and language runtime version.
     validations:
       required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste any relevant logs. Automatically formatted as code.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This is not a security vulnerability (those follow SECURITY.md).
+          required: true
+        - label: I agree to follow this project's Code of Conduct.
+          required: true

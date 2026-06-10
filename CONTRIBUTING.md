@@ -3,6 +3,11 @@
 Thanks for contributing. These defaults apply across `cplieger` repos; a repo
 may override them with its own `CONTRIBUTING.md`.
 
+By participating you agree to abide by our
+[Code of Conduct](CODE_OF_CONDUCT.md). Report security vulnerabilities through
+the [security policy](SECURITY.md) — never in a public issue. For usage
+questions, see [SUPPORT.md](SUPPORT.md).
+
 ## Workflow
 
 1. Fork / branch from `main`.

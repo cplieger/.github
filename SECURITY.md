@@ -4,8 +4,11 @@
 
 Please report security issues **privately** — do not open a public issue.
 
-Use the **"Report a vulnerability"** button on the **Security** tab of the affected
-repository. Private vulnerability reporting is enabled on all public repositories.
+Open the affected repository's **Security** tab and click **"Report a
+vulnerability"** to open the private advisory form. Private vulnerability
+reporting is enabled on all public repositories. The direct link is
+`https://github.com/cplieger/<repo>/security/advisories/new` (replace `<repo>`
+with the repository name).
 
 Include the affected version/commit, reproduction steps, and impact. You'll get an
 acknowledgement within a few days, followed by a coordinated fix and disclosure.
