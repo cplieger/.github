@@ -10,6 +10,13 @@
   "labels": [
     "dependencies"
   ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "automerge": false,
+    "labels": [
+      "security"
+    ]
+  },
   "packageRules": [
     {
       "description": "Auto-merge minor, patch, digest, pin",
@@ -36,7 +43,10 @@
       "matchManagers": [
         "gomod"
       ],
-      "groupName": "Go dependencies"
+      "groupName": "Go dependencies",
+      "postUpdateOptions": [
+        "gomodTidy"
+      ]
     },
     {
       "description": "Keep indirect (transitive) Go modules updated. Renovate disables indirect gomod updates by default; re-enabling stops transitive deps (e.g. golang.org/x/* pulled via go-pkcs12 / filippo.io/age) from silently rotting into CVEs. Folds into the 'Go dependencies' group and minor/patch auto-merge above.",
@@ -148,6 +158,32 @@
         "\"version\":\\s*\"(?<currentValue>[^\"]+)\",\\s*\"update\":\\s*\\{\\s*\"method\":\\s*\"rubygems\",\\s*\"package\":\\s*\"(?<depName>[^\"]+)\""
       ],
       "datasourceTemplate": "rubygems"
+    },
+    {
+      "customType": "regex",
+      "description": "FFmpeg version (n-prefixed tags, e.g. subflux Dockerfile)",
+      "managerFilePatterns": [
+        "/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG\\s+FFMPEG_VERSION=(?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "FFmpeg/FFmpeg",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^n(?<version>\\d+\\.\\d+(?:\\.\\d+)?)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "xcaddy build --with plugin pins (e.g. docker-caddy Dockerfile)",
+      "managerFilePatterns": [
+        "/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "--with\\s+(?<depName>github\\.com/[^@\\s]+)@(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "go",
+      "versioningTemplate": "semver"
     }
   ],
   "ignorePaths": [
