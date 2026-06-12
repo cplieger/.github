@@ -5,11 +5,14 @@
 Please report security issues **privately** — do not open a public issue.
 
 On the affected repository, open the **Security** tab, then click
-**"Report a vulnerability"** to open the private advisory form. Private
-vulnerability reporting is enabled on all public repositories.
+**"Report a vulnerability"** to open the private advisory form (GitHub
+[private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
+is enabled on all public repositories).
 
-Include the affected version/commit, reproduction steps, and impact. You'll get an
-acknowledgement within a few days, followed by a coordinated fix and disclosure.
+Include the affected version/commit, reproduction steps, and impact. You will
+receive an acknowledgement within **7 days**. Reports are handled under a
+coordinated disclosure process: a fix is prepared privately and released before
+public disclosure, normally within **90 days** of the initial report.
 
 ## Supported versions
 
