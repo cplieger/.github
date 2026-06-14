@@ -34,3 +34,21 @@ Pre-1.0 stays within `0.x` (see each repo's `cliff.toml`).
 
 Formatting and linting are enforced in CI (golangci-lint for Go; eslint +
 prettier for TypeScript). Run the repo's lint/format targets before pushing.
+
+## Code review
+
+All changes reach `main` through a pull request and must pass the required
+`ci / validate` status check (lint, typecheck/vet, tests, and the security
+scans — CodeQL, Trivy, gitleaks) before they can merge. The maintainer reviews
+every change before merging; external pull requests are reviewed the same way.
+
+Review explicitly covers the security impact of a change, not just
+correctness: new or changed handling of untrusted input, trust boundaries,
+dependency and supply-chain changes, secret handling, and anything the
+automated scanners flag. Findings are resolved before merge, not after.
+
+This is currently a single-maintainer project, so independent two-person
+review is not yet in place; see [GOVERNANCE.md](GOVERNANCE.md) and
+[CONTINUITY.md](CONTINUITY.md). Adding a second reviewer is part of the
+continuity plan, and these requirements already apply to the contributions a
+second maintainer would review.
