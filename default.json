@@ -17,6 +17,7 @@
       "security"
     ]
   },
+  "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
       "description": "Auto-merge minor, patch, digest, pin",
