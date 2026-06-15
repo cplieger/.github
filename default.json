@@ -40,6 +40,17 @@
       ]
     },
     {
+      "description": "Never digest-track cplieger/ci reusable workflows on a branch ref (a stray `# main`/`# master` instead of a release tag). A branch ref moves with every commit, so Renovate digest-chases HEAD and, with digest auto-merge on, loops forever (and fans out to every consumer via Sync). Reusable-workflow pins MUST track a release tag such as `# v2`.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepNames": [
+        "cplieger/ci"
+      ],
+      "matchCurrentValue": "/^(main|master)$/",
+      "enabled": false
+    },
+    {
       "description": "Group Go dependency updates",
       "matchManagers": [
         "gomod"
