@@ -129,6 +129,17 @@
     },
     {
       "customType": "regex",
+      "description": "tools.json gitlab entries (vibekit/vibecli)",
+      "managerFilePatterns": [
+        "/tools\\.json$/"
+      ],
+      "matchStrings": [
+        "\"version\":\\s*\"(?<currentValue>[^\"]+)\",\\s*\"update\":\\s*\\{\\s*\"method\":\\s*\"gitlab\",\\s*\"repo\":\\s*\"(?<depName>[^\"]+)\""
+      ],
+      "datasourceTemplate": "gitlab-releases"
+    },
+    {
+      "customType": "regex",
       "description": "tools.json npm entries (vibekit/vibecli)",
       "managerFilePatterns": [
         "/tools\\.json$/"
