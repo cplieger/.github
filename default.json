@@ -71,6 +71,20 @@
       "enabled": true
     },
     {
+      "description": "Block the Go semantic-import-versioning trap where a transitive module's vN+1 path is offered as a 'major' update. modernc.org/libc is an indirect dep pinned by modernc.org/sqlite on the v1 line; the modernc.org/libc/v2 path is a separate dormant line (v2.1.30, frozen 2024-02) that nothing imports, so Renovate's 'major' PR only adds a phantom require that go mod tidy strips. Let sqlite drive libc; v1 minor/patch still flow via the indirect rule above.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepNames": [
+        "modernc.org/libc",
+        "modernc.org/libc/v2"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "description": "devDependencies use scope 'devdeps' (commit prefix 'chore(devdeps)') so cliff can skip them — they don't ship to consumers and shouldn't trigger version bumps. Runtime/peer deps keep the default 'deps' scope which cliff treats as a release.",
       "matchDepTypes": [
         "devDependencies"
