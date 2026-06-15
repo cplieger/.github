@@ -1,0 +1,20 @@
+# Lint gate for the org-config repo. Calls the central cplieger/ci meta
+# workflow, which auto-detects surfaces — for this repo that means markdown lint
+# plus actionlint on the workflow files. Emits the required `ci / validate`
+# check. Hand-maintained (this repo is the sync source, not a sync target); the
+# pinned SHA is bumped by Renovate via the `# v2` comment.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: cplieger/ci/.github/workflows/ci.yaml@ede07cb77be733fa545d0a262ae82e0f7903d5da # v2
