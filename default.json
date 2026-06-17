@@ -98,6 +98,14 @@
       ],
       "followTag": "latest",
       "ignoreUnstable": false
+    },
+    {
+      "description": "Adopt our own first-party libraries immediately (skip the config:best-practices minimum-release-age / stability-days wait). We author and release these ourselves (@cplieger/* on npm/JSR, github.com/cplieger/* Go modules); the release-to-Renovate-to-redeploy chain is intentional, so the bake window only adds friction and blocks propagation of our own versions. Third-party deps keep the inherited stability window.",
+      "matchPackageNames": [
+        "@cplieger/**",
+        "github.com/cplieger/**"
+      ],
+      "minimumReleaseAge": "0 days"
     }
   ],
   "customDatasources": {
