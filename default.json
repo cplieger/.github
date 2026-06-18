@@ -106,6 +106,21 @@
         "github.com/cplieger/**"
       ],
       "minimumReleaseAge": "0 days"
+    },
+    {
+      "description": "darkhttpd (docker-static-web) needs a manual SHA-256 recompute on every version bump: the github-tags datasource exposes the git sha, not the sha256 of the auto-generated archive that the Dockerfile's `sha256sum -c` gate verifies, and the hosted Renovate app has no postUpgradeTasks to recompute it. Label the bump PR and embed the recompute command so the maintainer's fix is one mechanical step. Centralized here (not in docker-static-web/renovate.json) so it lives beside the customManagers and is consistent with the single-source-of-truth preset model; matchDepNames keeps it a no-op for every other repo.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "emikulic/darkhttpd"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute `DARKHTTPD_SHA256`, paste it into the Dockerfile in this PR, then push:\n\n```sh\ncurl -sL https://github.com/emikulic/darkhttpd/archive/refs/tags/{{{newVersion}}}.tar.gz | sha256sum\n```"
+      ]
     }
   ],
   "customDatasources": {
@@ -130,12 +145,13 @@
     },
     {
       "customType": "regex",
-      "description": "Workflow tool version pins (golangci-lint, shellcheck, trivy, etc.) via renovate comment + VERSION=",
+      "description": "Workflow + composite-action tool version pins (golangci-lint, shellcheck, trivy, markdownlint-cli2, ruff, git-cliff, tsgo, etc.) via a renovate comment + an optionally-prefixed VERSION= assignment. The optional uppercase prefix lets prefixed vars (CLIFF_VERSION, TSGO_VERSION) be tracked alongside a bare VERSION=, and the action.yml pattern covers composite actions under actions/**.",
       "managerFilePatterns": [
-        "/^\\.github/workflows/.+\\.ya?ml$/"
+        "/^\\.github/workflows/.+\\.ya?ml$/",
+        "/(^|/)action\\.ya?ml$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\s*\\n\\s*VERSION=(?<currentValue>\\S+)"
+        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\s*\\n\\s*[A-Z_]*VERSION=(?<currentValue>\\S+)"
       ]
     },
     {
