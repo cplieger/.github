@@ -21,7 +21,7 @@ Releases are automated from **[Conventional Commits](https://www.conventionalcom
 via git-cliff — your commit type determines the version bump:
 
 | Prefix | Effect |
-|---|---|
+| --- | --- |
 | `feat:` | new feature |
 | `fix:` | bug fix |
 | `sec:` | security fix |

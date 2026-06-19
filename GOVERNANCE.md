@@ -17,7 +17,7 @@ scaled down to a single-maintainer project.
 ## Roles and responsibilities
 
 | Role | Who | Responsibilities |
-|---|---|---|
+| --- | --- | --- |
 | **Maintainer** | Christopher Plieger ([@cplieger](https://github.com/cplieger)) | Sole decision-maker. Reviews and merges changes, cuts releases, triages issues and security reports, sets technical direction, and administers repository settings, secrets, and branch protection. |
 | **Contributor** | Anyone who opens an issue or pull request | Proposes changes via pull request, reports bugs and vulnerabilities, and participates in discussion. Contributors have no merge rights. |
 
