@@ -51,13 +51,14 @@
       "enabled": false
     },
     {
-      "description": "Group Go dependency updates",
+      "description": "Group Go dependency updates. gomodUpdateImportPaths rewrites the /vN import path in .go source on a major bump (Go semantic import versioning: v2+ changes the module path, so source imports must change too). Without it Renovate edits only go.mod/go.sum and the PR lands non-compiling — e.g. github-scout#9, where the atomicfile v1->v2 bump left a stale v1 import plus a duplicate require. It is a built-in postUpdateOption (no allowedCommands allowlist needed), uses marwan-at-work/mod, handles standard github.com/* paths (not gopkg.in), and shells out to the go toolchain — which our self-hosted bot (apps/renovate, binarySource=install under the default UID 12021:0) installs on demand, the same toolchain access the OBS-033/034 fix restored. gomodTidy then reconciles go.sum. It does NOT fix genuine API breaks (renamed funcs, changed return signatures — e.g. atomicfile v2's WriteFile now returns (Result, error)); those still need a manual follow-up, but with imports correct, downstream CI flags only the real breakage instead of a phantom import error. Deliberately NOT paired with a postUpgradeTasks `go build` gate: that would require widening the global RENOVATE_ALLOWED_COMMANDS (a security surface) across every cplieger/* repo for only a marginal fail-fast gain, since each repo's own CI already rejects a non-compiling PR (that is how #9 surfaced).",
       "matchManagers": [
         "gomod"
       ],
       "groupName": "Go dependencies",
       "postUpdateOptions": [
-        "gomodTidy"
+        "gomodTidy",
+        "gomodUpdateImportPaths"
       ]
     },
     {
