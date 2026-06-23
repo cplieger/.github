@@ -122,6 +122,14 @@
       "prBodyNotes": [
         ":warning: **Manual SHA bump required.** Recompute `DARKHTTPD_SHA256`, paste it into the Dockerfile in this PR, then push:\n\n```sh\ncurl -sL https://github.com/emikulic/darkhttpd/archive/refs/tags/{{{newVersion}}}.tar.gz | sha256sum\n```"
       ]
+    },
+    {
+      "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this froze homelab's Plex from Feb-2026 once the image reference gained a docker.io/ registry prefix). Only homelab references this image, so this is a no-op for every other repo.",
+      "matchPackageNames": [
+        "docker.io/plexinc/pms-docker",
+        "plexinc/pms-docker"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[a-f0-9]+$"
     }
   ],
   "customDatasources": {
