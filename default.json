@@ -124,6 +124,21 @@
       ]
     },
     {
+      "description": "fclones (docker-fclones-scheduler) integrity pins are split across three coupled Dockerfile ARGs the customManager does not move together: it bumps FCLONES_VERSION but leaves FCLONES_SHA256_AMD64 and FCLONES_COMMIT stale, fail-closing the build. Label the bump and embed the recompute commands so the maintainer's fix is mechanical. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "pkolaczk/fclones"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual integrity-pin bump required.**\n\nRecompute both pins and paste them into the Dockerfile in this PR:\n\n```sh\nV={{{newVersion}}}; VER=${V#v}\n# FCLONES_SHA256_AMD64 (amd64 musl tarball):\ncurl -fsSL \"https://github.com/pkolaczk/fclones/releases/download/${V}/fclones-${VER}-linux-musl-x86_64.tar.gz\" | sha256sum\n# FCLONES_COMMIT (arm64: tag dereferenced to commit):\ngit ls-remote https://github.com/pkolaczk/fclones.git \"refs/tags/${V}^{}\"\n```"
+      ]
+    },
+    {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this froze homelab's Plex from Feb-2026 once the image reference gained a docker.io/ registry prefix). Only homelab references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker",
