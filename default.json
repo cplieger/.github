@@ -139,6 +139,81 @@
       ]
     },
     {
+      "description": "vibecli's Dockerfile pins the Go toolchain by version plus a per-arch sha256 (GO_SHA256_AMD64 / GO_SHA256_ARM64) verified by `sha256sum -c`. The generic Dockerfile customManager rewrites GO_VERSION but cannot touch the unmanaged shas, so a bump lands with stale shas and fail-closes the build. Label the PR and embed the per-arch recompute commands so the maintainer fix is one paste. matchDepNames keeps it a no-op for repos without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "golang"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute both per-arch Go pins and paste them into the Dockerfile in this PR:\n\n```sh\n# GO_SHA256_AMD64\ncurl -fsSL \"https://go.dev/dl/go{{{newVersion}}}.linux-amd64.tar.gz\" | sha256sum\n# GO_SHA256_ARM64\ncurl -fsSL \"https://go.dev/dl/go{{{newVersion}}}.linux-arm64.tar.gz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "vibecli's Dockerfile (and the sister vibekit image, same approach) pins tsgo via @typescript/native-preview plus a per-arch sha256 (TSGO_SHA256_X64 / TSGO_SHA256_ARM64) of the platform-specific tarballs, which publish in lockstep at the same version. The generic Dockerfile customManager rewrites TSGO_VERSION but leaves the shas stale, fail-closing the build. Label the PR and embed the per-arch recompute commands. matchDepNames keeps it a no-op for repos without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "@typescript/native-preview"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute both per-arch tsgo pins and paste them into the Dockerfile in this PR:\n\n```sh\n# TSGO_SHA256_X64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/native-preview-linux-x64/-/native-preview-linux-x64-{{{newVersion}}}.tgz\" | sha256sum\n# TSGO_SHA256_ARM64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/native-preview-linux-arm64/-/native-preview-linux-arm64-{{{newVersion}}}.tgz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "vibecli's Dockerfile pins the Nerd Font release tag plus the sha256 of Monaspace.tar.xz (NERDFONT_SHA256). GitHub release assets are mutable, so this gate is the real integrity anchor. The generic Dockerfile customManager rewrites NERDFONT_VERSION but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "ryanoasis/nerd-fonts"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute NERDFONT_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://github.com/ryanoasis/nerd-fonts/releases/download/v{{{newVersion}}}/Monaspace.tar.xz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "vibecli's Dockerfile pins @cplieger/web-terminal-engine plus the sha256 of its published npm tarball (CPLIEGER_WEB_TERMINAL_ENGINE_SHA256). The generic Dockerfile customManager rewrites the version ARG but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "@cplieger/web-terminal-engine"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute CPLIEGER_WEB_TERMINAL_ENGINE_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://registry.npmjs.org/@cplieger/web-terminal-engine/-/web-terminal-engine-{{{newVersion}}}.tgz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "vibecli's Dockerfile pins @cplieger/web-terminal-ui plus the sha256 of its published npm tarball (CPLIEGER_WEB_TERMINAL_UI_SHA256). The generic Dockerfile customManager rewrites the version ARG but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "@cplieger/web-terminal-ui"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute CPLIEGER_WEB_TERMINAL_UI_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://registry.npmjs.org/@cplieger/web-terminal-ui/-/web-terminal-ui-{{{newVersion}}}.tgz\" | sha256sum\n```"
+      ]
+    },
+    {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this froze homelab's Plex from Feb-2026 once the image reference gained a docker.io/ registry prefix). Only homelab references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker",
