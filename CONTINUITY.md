@@ -30,7 +30,7 @@ day-to-day attention:
 ## Current gap (honest)
 
 The maintainer is currently the only person with administrative access to the
-GitHub account, the `cplieger.com` domain (at the registrar), and release
+GitHub account, the project's domain (at the registrar), and release
 infrastructure. **No second individual currently holds emergency access.** If
 the maintainer were permanently unavailable, no one could merge changes or cut
 new releases until access was recovered through the registrar's and GitHub's
