@@ -16,9 +16,9 @@ It is honest: it states residual risks rather than claiming perfection.
 ## Top-level claim
 
 **Each project is adequately secure for its intended use** — primarily
-self-hosted libraries, tools, and services for a private homelab and their
-public open-source consumers — **given its threat model and the value of the
-assets it handles.**
+self-hosted libraries, tools, and services and their public open-source
+consumers — **given its threat model and the value of the assets it
+handles.**
 
 ## Threat model (summary)
 

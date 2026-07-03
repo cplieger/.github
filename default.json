@@ -229,7 +229,7 @@
       ]
     },
     {
-      "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this froze homelab's Plex from Feb-2026 once the image reference gained a docker.io/ registry prefix). Only homelab references this image, so this is a no-op for every other repo.",
+      "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this once froze a pinned image from updating after its reference gained a docker.io/ registry prefix). Only one private consumer references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker",
         "plexinc/pms-docker"
@@ -237,7 +237,7 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[a-f0-9]+$"
     },
     {
-      "description": "qbittorrent-nox (qBittorrent official image, homelab torrent stack): stay on the libtorrent 1.x tag line and never bump to the lt2 variant. Tags are <version>-<build> for lt1 (e.g. 5.2.2-1) and <version>-lt2-<build> for lt2 (e.g. 5.2.2-lt2-1). We deliberately hold lt1.2 to avoid libtorrent 2.0's mmap page-cache RAM blowup at high torrent counts (~19.5k across the 3-instance split); lt2 becomes viable only once 2.1 (pread_disk_io, no mmap) ships stable. The custom versioning regex parses <major>.<minor>.<patch>-<build> so build bumps (5.2.2-1 -> 5.2.2-2) and version bumps order correctly (default docker versioning misreads the -N suffix) AND it structurally excludes -lt2- tags (they don't match the pattern, so Renovate can't parse them as newer). allowedVersions is the explicit belt-and-suspenders guard. Only homelab references this image, so this is a no-op for every other repo.",
+      "description": "qbittorrent-nox (qBittorrent official image): stay on the libtorrent 1.x tag line and never bump to the lt2 variant. Tags are <version>-<build> for lt1 (e.g. 5.2.2-1) and <version>-lt2-<build> for lt2 (e.g. 5.2.2-lt2-1). We deliberately hold lt1.2 to avoid libtorrent 2.0's mmap page-cache RAM blowup at high torrent counts; lt2 becomes viable only once 2.1 (pread_disk_io, no mmap) ships stable. The custom versioning regex parses <major>.<minor>.<patch>-<build> so build bumps (5.2.2-1 -> 5.2.2-2) and version bumps order correctly (default docker versioning misreads the -N suffix) AND it structurally excludes -lt2- tags (they don't match the pattern, so Renovate can't parse them as newer). allowedVersions is the explicit belt-and-suspenders guard. Only one private consumer references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "ghcr.io/qbittorrent/docker-qbittorrent-nox",
         "docker.io/qbittorrentofficial/qbittorrent-nox",
