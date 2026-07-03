@@ -139,6 +139,21 @@
       ]
     },
     {
+      "description": "rmlint (docker-rmlint-scheduler) builds rmlint from source across coupled pins the customManager does not move together: it bumps RMLINT_VERSION but leaves ARG RMLINT_COMMIT (the commit the tag dereferences to) and the 'Audited against rmlint <version>;' comment in config.go stale, both of which fail-close the build (a commit-mismatch check and a go-builder grep gate). Label the bump and embed the recompute + re-audit steps so the maintainer fix is mechanical. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "sahib/rmlint"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual pin bump + re-audit required.** rmlint builds from source with coupled pins the bot cannot move.\n\n1. Recompute `ARG RMLINT_COMMIT` (the tag dereferenced to its commit) and paste it into the Dockerfile:\n\n```sh\ngit ls-remote https://github.com/sahib/rmlint.git \"refs/tags/{{{newVersion}}}^{}\"\n```\n\n2. Re-audit `rmlint --help` for new output-redirect / command-exec flags, extend `dangerousFlags` in `config.go` if needed, and bump the `Audited against rmlint <version>;` comment to `{{{newVersion}}}` (a go-builder grep gate fails the build until it matches). See CONTRIBUTING.md."
+      ]
+    },
+    {
       "description": "vibecli's Dockerfile pins the Go toolchain by version plus a per-arch sha256 (GO_SHA256_AMD64 / GO_SHA256_ARM64) verified by `sha256sum -c`. The generic Dockerfile customManager rewrites GO_VERSION but cannot touch the unmanaged shas, so a bump lands with stale shas and fail-closes the build. Label the PR and embed the per-arch recompute commands so the maintainer fix is one paste. matchDepNames keeps it a no-op for repos without this pin.",
       "matchManagers": [
         "custom.regex"
