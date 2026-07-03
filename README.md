@@ -22,5 +22,8 @@ Repo-local only (GitHub does **not** inherit these from `.github`):
 - `CODEOWNERS` — only governs this repo; each repo needs its own.
 - `README.md` — per-repo.
 
-Shared CI/CD (reusable workflows, lint configs, Renovate preset) lives
-separately in [`cplieger/ci`](https://github.com/cplieger/ci).
+The Renovate preset (`default.json`) lives in this repo, which is why repos
+extend `github>cplieger/.github`. The reusable workflows and lint/format configs
+live separately in [`cplieger/ci`](https://github.com/cplieger/ci).
+
+This project was built with AI-assisted tooling using [Claude Opus](https://www.anthropic.com/claude) and [Kiro](https://kiro.dev). The human maintainer defines architecture, supervises implementation, and makes all final decisions.

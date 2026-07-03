@@ -47,8 +47,6 @@ correctness: new or changed handling of untrusted input, trust boundaries,
 dependency and supply-chain changes, secret handling, and anything the
 automated scanners flag. Findings are resolved before merge, not after.
 
-This is currently a single-maintainer project, so independent two-person
-review is not yet in place; see [GOVERNANCE.md](GOVERNANCE.md) and
-[CONTINUITY.md](CONTINUITY.md). Adding a second reviewer is part of the
-continuity plan, and these requirements already apply to the contributions a
-second maintainer would review.
+This is currently a single-maintainer project; see
+[GOVERNANCE.md](GOVERNANCE.md) and [CONTINUITY.md](CONTINUITY.md) for the
+governance and continuity plan.
