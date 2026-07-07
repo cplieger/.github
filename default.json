@@ -154,19 +154,13 @@
       ]
     },
     {
-      "description": "vibecli's Dockerfile pins the Go toolchain by version plus a per-arch sha256 (GO_SHA256_AMD64 / GO_SHA256_ARM64) verified by `sha256sum -c`. The generic Dockerfile customManager rewrites GO_VERSION but cannot touch the unmanaged shas, so a bump lands with stale shas and fail-closes the build. Label the PR and embed the per-arch recompute commands so the maintainer fix is one paste. matchDepNames keeps it a no-op for repos without this pin.",
-      "matchManagers": [
-        "custom.regex"
-      ],
+      "description": "Group the Go toolchain version dep (golang) with its per-arch tarball sha256 deps (golang-amd64 / golang-arm64, from the custom datasources) into ONE PR so GO_VERSION and both GO_SHA256_* pins always move together and the build never lands with a stale sha. This replaced the former golang manual-sha-bump rule now that the shas auto-update (go.dev's ?mode=json publishes each tarball's sha256, so the customDatasources resolve the new digest per arch — same auto-update model as the kiro-cli pin). For repos that pin only the Go version with no sha lines (vibekit / web-terminal-server), only `golang` matches, so the PR is just renamed — no behavior change.",
       "matchDepNames": [
-        "golang"
+        "golang",
+        "golang-amd64",
+        "golang-arm64"
       ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute both per-arch Go pins and paste them into the Dockerfile in this PR:\n\n```sh\n# GO_SHA256_AMD64\ncurl -fsSL \"https://go.dev/dl/go{{{newVersion}}}.linux-amd64.tar.gz\" | sha256sum\n# GO_SHA256_ARM64\ncurl -fsSL \"https://go.dev/dl/go{{{newVersion}}}.linux-arm64.tar.gz\" | sha256sum\n```"
-      ]
+      "groupName": "golang toolchain"
     },
     {
       "description": "vibecli's Dockerfile (and the sister vibekit image, same approach) pins tsgo via @typescript/native-preview plus a per-arch sha256 (TSGO_SHA256_X64 / TSGO_SHA256_ARM64) of the platform-specific tarballs, which publish in lockstep at the same version. The generic Dockerfile customManager rewrites TSGO_VERSION but leaves the shas stale, fail-closing the build. Label the PR and embed the per-arch recompute commands. matchDepNames keeps it a no-op for repos without this pin.",
@@ -224,6 +218,20 @@
       "transformTemplates": [
         "{ \"releases\": versions.{ \"version\": version, \"digest\": packages[fileType = 'zip' and targetTriple = 'x86_64-unknown-linux-gnu' and variant = 'headless'][0].sha256 } }"
       ]
+    },
+    "golang-amd64": {
+      "defaultRegistryUrlTemplate": "https://go.dev/dl/?mode=json&include=all",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": [$[stable=true].{ \"version\": $substringAfter(version, \"go\"), \"digest\": $join(files[os=\"linux\" and arch=\"amd64\" and kind=\"archive\"].sha256) }] }"
+      ]
+    },
+    "golang-arm64": {
+      "defaultRegistryUrlTemplate": "https://go.dev/dl/?mode=json&include=all",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": [$[stable=true].{ \"version\": $substringAfter(version, \"go\"), \"digest\": $join(files[os=\"linux\" and arch=\"arm64\" and kind=\"archive\"].sha256) }] }"
+      ]
     }
   },
   "customManagers": [
@@ -236,6 +244,18 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\nARG\\s+\\w+=(?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Go toolchain per-arch tarball sha256 pins (vibecli). Pairs with the golang-amd64 / golang-arm64 customDatasources to auto-update GO_SHA256_AMD64 / GO_SHA256_ARM64 alongside GO_VERSION, grouped into one 'golang toolchain' PR by the packageRule below — this replaced the former golang manual-sha-bump rule. The `# go<version>` trailer on each ARG line is the load-bearing anchor that carries the version Renovate needs to look up that arch's digest; the arch is captured and routed to the matching custom datasource via datasourceTemplate. re2-safe (no lookbehind); GO_VERSION and the two sha lines are distinct non-overlapping lines, so grouped edits apply cleanly. A no-op in every repo without these `datasource=custom.golang-*` comments (vibekit / web-terminal-server pin only the version, so only the generic manager above fires there).",
+      "managerFilePatterns": [
+        "/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=custom\\.golang-(?<arch>amd64|arm64)\\s+depName=(?<depName>[^\\s]+)\\nARG\\s+GO_SHA256_\\w+=(?<currentDigest>[a-f0-9]{64})\\s+#\\s*go(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "custom.golang-{{{arch}}}",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
