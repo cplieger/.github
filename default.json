@@ -163,6 +163,16 @@
       "groupName": "golang toolchain"
     },
     {
+      "description": "golang docker image: wait 1 day before pinning a version bump. The official golang tag publishes its multi-arch manifest in stages, so Renovate can resolve the tag digest during the publish window while the manifest-list index is still EMPTY (0 platform manifests); that empty digest then fails every consumer's native amd64+arm64 docker build with 'no match for platform in manifest'. A 1-day stabilization delay rides out the publish race (the same failure mode homelab guards PostgreSQL against). Scoped to matchDatasources=docker so it never delays the go.dev-tarball golang-version dep or the golang-amd64/golang-arm64 sha deps.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchDepNames": [
+        "golang"
+      ],
+      "minimumReleaseAge": "1 day"
+    },
+    {
       "description": "vibecli's Dockerfile (and the sister vibekit image, same approach) pins tsgo via @typescript/native-preview plus a per-arch sha256 (TSGO_SHA256_X64 / TSGO_SHA256_ARM64) of the platform-specific tarballs, which publish in lockstep at the same version. The generic Dockerfile customManager rewrites TSGO_VERSION but leaves the shas stale, fail-closing the build. Label the PR and embed the per-arch recompute commands. matchDepNames keeps it a no-op for repos without this pin.",
       "matchManagers": [
         "custom.regex"
