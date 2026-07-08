@@ -156,6 +156,7 @@
     {
       "description": "Group the Go toolchain version dep (golang) with its per-arch tarball sha256 deps (golang-amd64 / golang-arm64, from the custom datasources) into ONE PR so GO_VERSION and both GO_SHA256_* pins always move together and the build never lands with a stale sha. This replaced the former golang manual-sha-bump rule now that the shas auto-update (go.dev's ?mode=json publishes each tarball's sha256, so the customDatasources resolve the new digest per arch — same auto-update model as the kiro-cli pin). For repos that pin only the Go version with no sha lines (vibekit / web-terminal-server), only `golang` matches, so the PR is just renamed — no behavior change.",
       "matchDepNames": [
+        "go",
         "golang",
         "golang-amd64",
         "golang-arm64"
@@ -245,6 +246,18 @@
     }
   },
   "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the go.mod `go` directive so a Go stdlib patch (e.g. GO-2026-5856, the crypto/tls Encrypted Client Hello leak fixed in go1.26.5) flows fleet-wide. Renovate's built-in gomod manager deliberately leaves the bare `go` directive alone — it treats `go 1.26.4` as a >= minimum-version constraint (go-mod-directive versioning) and only bumps it when a dependency forces it — so a stdlib CVE fix never reaches go.mod and the go-ci `govulncheck` step keeps failing until a manual bump (observed 2026-07: go.mod stuck at 1.26.4 fleet-wide while the Dockerfile ARG GO_VERSION had already advanced to 1.26.5 via the manager below). The golang-version datasource + the 'golang toolchain' group above land this in the same PR as any Dockerfile GO_VERSION bump; minor/patch auto-merge per the update-type rules, majors gated. Matches only a full `go X.Y.Z` line (the fleet convention); a `toolchain goX.Y.Z` line is left to the gomod manager.",
+      "managerFilePatterns": [
+        "/(^|/)go\\.mod$/"
+      ],
+      "matchStrings": [
+        "\\ngo (?<currentValue>\\d+\\.\\d+\\.\\d+)\\n"
+      ],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go"
+    },
     {
       "customType": "regex",
       "description": "Dockerfile ARG versions with renovate comments",
