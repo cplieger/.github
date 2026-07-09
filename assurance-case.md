@@ -4,7 +4,7 @@ This document explains why the `cplieger` projects are considered _adequately
 secure_ for their intended use. It is the shared (default) assurance case for
 every public repository; repositories with a larger or more sensitive attack
 surface (for example `auth`, `ssrf`, `cert-converter`, `docker-age`,
-`pg-autodump`, `subflux`, `vibekit`, `vibecli`) carry a repo-specific
+`pg-autodump`, `subflux`, `vibekit`, `web-terminal-kiro`) carry a repo-specific
 `docs/assurance-case.md` that extends this one with details of their own
 threat model.
 
