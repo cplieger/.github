@@ -93,14 +93,6 @@
       "semanticCommitScope": "devdeps"
     },
     {
-      "description": "tsgo / @typescript/native-preview (TypeScript 7 native compiler) is in active prerelease (7.0.0-dev.*); follow the latest dist-tag (Microsoft's curated channel, current Go-stdlib CVE fixes) and accept prereleases. Applies wherever the package appears (subflux/vibekit/vibecli); no-op elsewhere. Remove when TS7 ships a stable major.",
-      "matchPackageNames": [
-        "@typescript/native-preview"
-      ],
-      "followTag": "latest",
-      "ignoreUnstable": false
-    },
-    {
       "description": "Adopt our own first-party libraries immediately (skip the config:best-practices minimum-release-age / stability-days wait). We author and release these ourselves (@cplieger/* on npm/JSR, github.com/cplieger/* Go modules); the release-to-Renovate-to-redeploy chain is intentional, so the bake window only adds friction and blocks propagation of our own versions. Third-party deps keep the inherited stability window.",
       "matchPackageNames": [
         "@cplieger/**",
@@ -174,22 +166,25 @@
       "minimumReleaseAge": "1 day"
     },
     {
-      "description": "vibecli's Dockerfile (and the sister vibekit image, same approach) pins tsgo via @typescript/native-preview plus a per-arch sha256 (TSGO_SHA256_X64 / TSGO_SHA256_ARM64) of the platform-specific tarballs, which publish in lockstep at the same version. The generic Dockerfile customManager rewrites TSGO_VERSION but leaves the shas stale, fail-closing the build. Label the PR and embed the per-arch recompute commands. matchDepNames keeps it a no-op for repos without this pin.",
+      "description": "web-terminal-kiro's Dockerfile SHA-pins the TypeScript 7 native-compiler tarball per arch (TS_SHA256_X64 / TS_SHA256_ARM64) on top of the version pin; the two platform packages (@typescript/typescript-linux-{x64,arm64}) publish in lockstep at the same version. The generic Dockerfile customManager rewrites TS_VERSION but leaves the shas stale (npm exposes SHA-512 dist.integrity, not the SHA-256 the Dockerfile verifies), fail-closing the build. Label the PR and embed the per-arch recompute commands. Scoped by matchRepositories to the repos that carry this pin, so it never labels the ones that fetch tsc without a sha gate (subflux/vibekit/web-terminal-server).",
       "matchManagers": [
         "custom.regex"
       ],
       "matchDepNames": [
-        "@typescript/native-preview"
+        "typescript"
+      ],
+      "matchRepositories": [
+        "cplieger/web-terminal-kiro"
       ],
       "addLabels": [
         "manual-sha-bump"
       ],
       "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute both per-arch tsgo pins and paste them into the Dockerfile in this PR:\n\n```sh\n# TSGO_SHA256_X64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/native-preview-linux-x64/-/native-preview-linux-x64-{{{newVersion}}}.tgz\" | sha256sum\n# TSGO_SHA256_ARM64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/native-preview-linux-arm64/-/native-preview-linux-arm64-{{{newVersion}}}.tgz\" | sha256sum\n```"
+        ":warning: **Manual SHA bump required.** Recompute both per-arch tsc pins and paste them into the Dockerfile in this PR:\n\n```sh\n# TS_SHA256_X64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/typescript-linux-x64/-/typescript-linux-x64-{{{newVersion}}}.tgz\" | sha256sum\n# TS_SHA256_ARM64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/typescript-linux-arm64/-/typescript-linux-arm64-{{{newVersion}}}.tgz\" | sha256sum\n```"
       ]
     },
     {
-      "description": "vibecli's Dockerfile pins the Nerd Font release tag plus the sha256 of Monaspace.tar.xz (NERDFONT_SHA256). GitHub release assets are mutable, so this gate is the real integrity anchor. The generic Dockerfile customManager rewrites NERDFONT_VERSION but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
+      "description": "web-terminal-kiro's Dockerfile pins the Nerd Font release tag plus the sha256 of Monaspace.tar.xz (NERDFONT_SHA256). GitHub release assets are mutable, so this gate is the real integrity anchor. The generic Dockerfile customManager rewrites NERDFONT_VERSION but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
       "matchManagers": [
         "custom.regex"
       ],
@@ -270,7 +265,7 @@
     },
     {
       "customType": "regex",
-      "description": "Go toolchain per-arch tarball sha256 pins (vibecli). Pairs with the golang-amd64 / golang-arm64 customDatasources to auto-update GO_SHA256_AMD64 / GO_SHA256_ARM64 alongside GO_VERSION, grouped into one 'golang toolchain' PR by the packageRule below — this replaced the former golang manual-sha-bump rule. The `# go<version>` trailer on each ARG line is the load-bearing anchor that carries the version Renovate needs to look up that arch's digest; the arch is captured and routed to the matching custom datasource via datasourceTemplate. re2-safe (no lookbehind); GO_VERSION and the two sha lines are distinct non-overlapping lines, so grouped edits apply cleanly. A no-op in every repo without these `datasource=custom.golang-*` comments (vibekit / web-terminal-server pin only the version, so only the generic manager above fires there).",
+      "description": "Go toolchain per-arch tarball sha256 pins (web-terminal-kiro). Pairs with the golang-amd64 / golang-arm64 customDatasources to auto-update GO_SHA256_AMD64 / GO_SHA256_ARM64 alongside GO_VERSION, grouped into one 'golang toolchain' PR by the packageRule below — this replaced the former golang manual-sha-bump rule. The `# go<version>` trailer on each ARG line is the load-bearing anchor that carries the version Renovate needs to look up that arch's digest; the arch is captured and routed to the matching custom datasource via datasourceTemplate. re2-safe (no lookbehind); GO_VERSION and the two sha lines are distinct non-overlapping lines, so grouped edits apply cleanly. A no-op in every repo without these `datasource=custom.golang-*` comments (vibekit / web-terminal-server pin only the version, so only the generic manager above fires there).",
       "managerFilePatterns": [
         "/Dockerfile$/"
       ],
@@ -282,7 +277,7 @@
     },
     {
       "customType": "regex",
-      "description": "Workflow + composite-action tool version pins (golangci-lint, shellcheck, trivy, markdownlint-cli2, ruff, git-cliff, tsgo, etc.) via a renovate comment + an optionally-prefixed VERSION= assignment. The optional uppercase prefix lets prefixed vars (CLIFF_VERSION, TSGO_VERSION) be tracked alongside a bare VERSION=, and the action.yml pattern covers composite actions under actions/**.",
+      "description": "Workflow + composite-action tool version pins (golangci-lint, shellcheck, trivy, markdownlint-cli2, ruff, git-cliff, etc.) via a renovate comment + an optionally-prefixed VERSION= assignment. The optional uppercase prefix lets prefixed vars (e.g. CLIFF_VERSION) be tracked alongside a bare VERSION=, and the action.yml pattern covers composite actions under actions/**.",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/",
         "/(^|/)action\\.ya?ml$/"
@@ -293,7 +288,7 @@
     },
     {
       "customType": "regex",
-      "description": "kiro-cli version + sha256 pinned in entrypoint.sh (vibecli/vibekit)",
+      "description": "kiro-cli version + sha256 pinned in entrypoint.sh (web-terminal-kiro/vibekit)",
       "managerFilePatterns": [
         "/entrypoint\\.sh$/"
       ],
@@ -304,7 +299,7 @@
     },
     {
       "customType": "regex",
-      "description": "tools.json github entries (vibekit/vibecli)",
+      "description": "tools.json github entries (vibekit/web-terminal-kiro)",
       "managerFilePatterns": [
         "/tools\\.json$/"
       ],
@@ -315,7 +310,7 @@
     },
     {
       "customType": "regex",
-      "description": "tools.json gitlab entries (vibekit/vibecli)",
+      "description": "tools.json gitlab entries (vibekit/web-terminal-kiro)",
       "managerFilePatterns": [
         "/tools\\.json$/"
       ],
@@ -326,7 +321,7 @@
     },
     {
       "customType": "regex",
-      "description": "tools.json npm entries (vibekit/vibecli)",
+      "description": "tools.json npm entries (vibekit/web-terminal-kiro)",
       "managerFilePatterns": [
         "/tools\\.json$/"
       ],
@@ -337,7 +332,7 @@
     },
     {
       "customType": "regex",
-      "description": "tools.json gomod entries (vibekit/vibecli)",
+      "description": "tools.json gomod entries (vibekit/web-terminal-kiro)",
       "managerFilePatterns": [
         "/tools\\.json$/"
       ],
@@ -348,7 +343,7 @@
     },
     {
       "customType": "regex",
-      "description": "tools.json rubygems entries (vibekit/vibecli)",
+      "description": "tools.json rubygems entries (vibekit/web-terminal-kiro)",
       "managerFilePatterns": [
         "/tools\\.json$/"
       ],

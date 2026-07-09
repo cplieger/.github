@@ -3,7 +3,7 @@
 This is the default roadmap for the `cplieger` repositories. It applies to the
 mature libraries, container images, and tools whose scope is stable. Actively
 evolving applications keep a repo-specific `ROADMAP.md` that takes precedence
-(currently: `subflux`, `vibekit`, `vibecli`).
+(currently: `subflux`, `vibekit`, `web-terminal-kiro`).
 
 Most of these projects are **feature-complete and in maintenance mode**: they do
 one thing, the public surface is intentionally small and stable, and "done" is a
@@ -25,14 +25,6 @@ healthy rather than growing scope.
   badge criteria.
 - **Bug and security response.** Reported issues and vulnerabilities are
   triaged and fixed per [SECURITY.md](./SECURITY.md).
-
-## Repositories with a TypeScript surface
-
-For repositories that ship or build TypeScript (the TS libraries and the
-applications with a web frontend): **adopt the stable `tsgo`
-([@typescript/native-preview](https://www.npmjs.com/package/@typescript/native-preview))
-release once it reaches general availability**, replacing the pinned preview
-currently used for typechecking.
 
 ## Scope changes
 
