@@ -16,7 +16,7 @@ public disclosure, normally within **90 days** of the initial report.
 
 ## Supported versions
 
-Only the latest released version of each library is supported. Pre-1.0 (`0.x`)
+Only the latest released version of each project is supported. Pre-1.0 (`0.x`)
 releases may contain breaking changes between minor versions.
 
 ## Verifying releases
@@ -40,7 +40,7 @@ artifact type:
   with `npm audit signatures` (npm) or the provenance link shown on the JSR
   package page.
 
-- **Go modules** are distributed by signed Git tag and the Go checksum database
+- **Go modules** are distributed by Git tag and the Go checksum database
   (`sum.golang.org`), with hashes recorded in `go.sum`. Integrity is verified
   automatically by the Go toolchain (`GOFLAGS=-mod=readonly`, `go mod verify`).
   Go modules are not separately signed, so author-identity verification beyond

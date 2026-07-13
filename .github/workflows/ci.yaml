@@ -1,16 +1,20 @@
 # Lint gate for the org-config repo. Calls the central cplieger/ci meta
 # workflow, which auto-detects surfaces — for this repo that means markdown lint
 # plus actionlint on the workflow files. Emits the required `ci / validate`
-# check. Hand-maintained (this repo is the sync source, not a sync target); the
-# pinned SHA is bumped by Renovate via the `# v2` comment.
+# check. PR-only: branch protection requires the check before merge, so a
+# post-merge re-run on main would be redundant (same rationale as homelab and
+# .kiro). Hand-maintained (this repo is the sync source, not a sync target);
+# the pinned SHA is bumped by Renovate via the `# v2` comment.
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
