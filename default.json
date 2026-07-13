@@ -4,40 +4,45 @@
     "config:best-practices"
   ],
   "timezone": "Europe/Paris",
-  "automerge": true,
-  "automergeType": "pr",
-  "platformAutomerge": true,
   "labels": [
     "dependencies"
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
     "automerge": false,
-    "labels": [
+    "addLabels": [
       "security"
     ]
   },
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "description": "Auto-merge minor, patch, digest, pin",
+      "description": "Auto-merge routine update types. Deliberately an explicit allowlist instead of a global automerge=true so the remaining types (rollback, replacement, bump, lockFileMaintenance) fail closed to manual review. pinDigest is included because it is the same trust class as pin/digest (one-time action-digest pinning).",
       "matchUpdateTypes": [
         "minor",
         "patch",
         "digest",
-        "pin"
+        "pin",
+        "pinDigest"
       ],
       "automerge": true
     },
     {
-      "description": "Major updates require manual approval",
+      "description": "Major updates require manual approval. addLabels (not labels) so the top-level 'dependencies' label is kept — labels is non-mergeable and would replace it.",
       "matchUpdateTypes": [
         "major"
       ],
       "automerge": false,
-      "labels": [
+      "addLabels": [
         "major-update"
       ]
+    },
+    {
+      "description": "Skip the root-level example compose.yaml each app/image repo ships — it references the repo's own image, so updating it is churn. A packageRule (not ignorePaths) because ignorePaths is non-mergeable: overriding it here would silently drop config:recommended's node_modules/vendor/tests/examples ignore defaults for every consumer. Root-level only; nested compose files (e.g. a private deployment repo's apps/*/compose.yaml) are unaffected.",
+      "matchFileNames": [
+        "compose.yaml"
+      ],
+      "enabled": false
     },
     {
       "description": "Never digest-track cplieger/ci reusable workflows on a branch ref (a stray `# main`/`# master` instead of a release tag). A branch ref moves with every commit, so Renovate digest-chases HEAD and, with digest auto-merge on, loops forever (and fans out to every consumer via Sync). Reusable-workflow pins MUST track a release tag such as `# v2`.",
@@ -378,9 +383,6 @@
       "datasourceTemplate": "go",
       "versioningTemplate": "semver"
     }
-  ],
-  "ignorePaths": [
-    "compose.yaml"
   ],
   "dependencyDashboardLabels": [
     "renovate"

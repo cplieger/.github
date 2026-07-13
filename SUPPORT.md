@@ -2,8 +2,10 @@
 
 Need help with a `cplieger` project?
 
-- **Questions / ideas** — open a [Discussion](https://github.com/cplieger) on the repo (or an issue if Discussions are off).
-- **Bugs** — open an issue using the bug template.
-- **Security** — see [SECURITY.md](SECURITY.md); do not file public issues for vulnerabilities.
+- **Questions / ideas**: open an issue on the affected repository using the
+  question or feature request form.
+- **Bugs**: open an issue using the bug report form.
+- **Security**: see [SECURITY.md](SECURITY.md); never file a public issue for
+  a vulnerability.
 
 These are personal open-source projects maintained on a best-effort basis.

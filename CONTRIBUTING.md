@@ -38,9 +38,12 @@ prettier for TypeScript). Run the repo's lint/format targets before pushing.
 ## Code review
 
 All changes reach `main` through a pull request and must pass the required
-`ci / validate` status check (lint, typecheck/vet, tests, and the security
-scans — CodeQL, Trivy, gitleaks) before they can merge. The maintainer reviews
-every change before merging; external pull requests are reviewed the same way.
+`ci / validate` status check (lint, typecheck/vet, tests, and gitleaks secret
+scanning) before they can merge. CodeQL and Trivy also run on pull requests
+and report to the Security tab; their findings are triaged and resolved as
+part of review rather than gating the merge mechanically. The maintainer
+reviews every change before merging; external pull requests are reviewed the
+same way.
 
 Review explicitly covers the security impact of a change, not just
 correctness: new or changed handling of untrusted input, trust boundaries,

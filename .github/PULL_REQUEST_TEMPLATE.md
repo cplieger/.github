@@ -2,6 +2,10 @@
 
 <!-- What does this change and why? -->
 
+## Linked issues
+
+<!-- e.g. "Fixes #123" to auto-close, or "Relates to #123". Delete if none. -->
+
 ## Changes
 
 -

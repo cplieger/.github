@@ -26,7 +26,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Library version / commit, and language runtime version.
+      description: Affected version, image tag, or commit, plus the runtime version where relevant.
     validations:
       required: true
   - type: textarea

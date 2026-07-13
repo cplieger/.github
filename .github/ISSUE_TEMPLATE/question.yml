@@ -1,0 +1,34 @@
+name: Question
+description: Ask a usage question.
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Usage questions are welcome. Check the README and existing issues
+        first; if the answer is not there, ask away. For suspected defects use
+        the bug report form, and for security vulnerabilities follow the
+        security policy instead.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do, and what is unclear?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Version in use, configuration, and anything already tried.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I agree to follow this project's Code of Conduct.
+          required: true
