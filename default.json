@@ -282,13 +282,13 @@
     },
     {
       "customType": "regex",
-      "description": "Workflow + composite-action tool version pins (golangci-lint, shellcheck, trivy, markdownlint-cli2, ruff, git-cliff, etc.) via a renovate comment + an optionally-prefixed VERSION= assignment. The optional uppercase prefix lets prefixed vars (e.g. CLIFF_VERSION) be tracked alongside a bare VERSION=, and the action.yml pattern covers composite actions under actions/**.",
+      "description": "Workflow + composite-action tool version pins (golangci-lint, shellcheck, trivy, cosign, buildx, markdownlint-cli2, ruff, git-cliff, etc.) via a renovate comment + an optionally-prefixed VERSION assignment in EITHER style: shell (`CLIFF_VERSION=v2.13.1` in a run block) or YAML env (`TRIVY_VERSION: v0.71.2` in an env block). The env style was previously unmatched (`=` only), which silently left every env-block pin untracked despite its comment. Optional quotes around the value are tolerated. The action.yml pattern covers composite actions under actions/**.",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/",
         "/(^|/)action\\.ya?ml$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\s*\\n\\s*[A-Z_]*VERSION=(?<currentValue>\\S+)"
+        "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\s*\\n\\s*[A-Z_]*VERSION[=:]\\s*['\"]?(?<currentValue>[^'\"\\s]+)"
       ]
     },
     {
