@@ -151,6 +151,81 @@
       ]
     },
     {
+      "description": "keepalived (docker-keepalived) builds from the pinned keepalived.org dist tarball behind a sha256sum -c gate: the github-tags datasource bumps KEEPALIVED_VERSION but exposes no tarball checksum (keepalived.org publishes no checksum file), so KEEPALIVED_SHA256 goes stale and fail-closes the build. Label the bump PR and embed the recompute command so the maintainer's fix is one mechanical step; the tarball name drops the tag's leading v. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "acassen/keepalived"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute `KEEPALIVED_SHA256` (keepalived.org publishes no checksum file; the tarball name drops the tag's leading v), paste it into the Dockerfile in this PR, then push:\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://www.keepalived.org/software/keepalived-${V#v}.tar.gz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "radvd (docker-radvd) builds from the pinned release dist tarball behind a sha256sum -c gate: the github-tags datasource bumps RADVD_VERSION but leaves RADVD_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command; upstream publishes a .sha256 asset beside each tarball, so the new value can be cross-checked. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "radvd-project/radvd"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute `RADVD_SHA256`, paste it into the Dockerfile in this PR, then push (cross-check against upstream's published `radvd-<N>.tar.gz.sha256` release asset):\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://github.com/radvd-project/radvd/releases/download/${V}/radvd-${V#v}.tar.gz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "rsync (docker-rsync-scheduler) builds from the pinned download.samba.org dist tarball (the stable release asset, NOT a GitHub tag archive) behind a sha256sum -c gate: the github-tags datasource bumps RSYNC_VERSION but leaves RSYNC_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command. Tags are plain vX.Y.Z, so default versioning needs no override. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "RsyncProject/rsync"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Verify the upstream signature FIRST, then recompute `RSYNC_SHA256` (the pin covers the download.samba.org dist tarball, not a GitHub tag archive), paste it into the Dockerfile in this PR, then push. Releases >= 3.4.0 are signed by Andrew Tridgell <andrew@tridgell.net> (signer named on https://rsync.samba.org/download.html; key from https://keys.openpgp.org/, fingerprint `9FEF 112D CE19 A0DC 7E88 2CB8 1BB2 4997 A853 5F6F`):\n\n```sh\nV={{{newVersion}}}\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz\"\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz.asc\"\ncurl -sL \"https://keys.openpgp.org/vks/v1/by-email/andrew%40tridgell.net\" | gpg --dearmor -o rsync-signing-key.gpg\ngpg --show-keys --with-fingerprint rsync-signing-key.gpg  # expect the fingerprint above\ngpgv --keyring ./rsync-signing-key.gpg \"rsync-${V#v}.tar.gz.asc\" \"rsync-${V#v}.tar.gz\"\nsha256sum \"rsync-${V#v}.tar.gz\"  # paste into RSYNC_SHA256 only after gpgv passes\n```"
+      ]
+    },
+    {
+      "description": "postfix (docker-smtp-relay) builds from the pinned postfix-release mirror tarball behind a sha256sum -c gate: the github-tags datasource bumps POSTFIX_VERSION but leaves POSTFIX_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command; the tarball name drops the tag's leading v, and the value can be cross-checked against the aports postfix APKBUILD sha512sums. The repo's legacy v20010228 tags are rejected repo-side via versioning=semver in the Dockerfile's renovate comment, so no extractVersion is needed here. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "vdukhovni/postfix"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute `POSTFIX_SHA256` (the tarball name drops the tag's leading v; cross-check against the aports postfix APKBUILD sha512sums), paste it into the Dockerfile in this PR, then push:\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://high5.nl/mirrors/postfix-release/official/postfix-${V#v}.tar.gz\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "tini (pg-autodump) is fetched as the pinned upstream static binary with per-arch integrity pins the customManager does not move together: it bumps TINI_VERSION but leaves TINI_SHA256_AMD64 and TINI_SHA256_ARM64 stale, fail-closing the build. Label the bump PR and embed the recompute commands; upstream publishes a .sha256sum asset per binary, so the new pins are fetched rather than computed. matchDepNames keeps it a no-op for other repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "krallin/tini"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.**\n\nFetch upstream's published per-arch checksums and paste them into the Dockerfile in this PR:\n\n```sh\n# TINI_SHA256_AMD64:\ncurl -fsSL \"https://github.com/krallin/tini/releases/download/{{{newVersion}}}/tini-static-amd64.sha256sum\"\n# TINI_SHA256_ARM64:\ncurl -fsSL \"https://github.com/krallin/tini/releases/download/{{{newVersion}}}/tini-static-arm64.sha256sum\"\n```"
+      ]
+    },
+    {
       "description": "Group the Go toolchain version dep (golang) with its per-arch tarball sha256 deps (golang-amd64 / golang-arm64, from the custom datasources) into ONE PR so GO_VERSION and both GO_SHA256_* pins always move together and the build never lands with a stale sha. This replaced the former golang manual-sha-bump rule now that the shas auto-update (go.dev's ?mode=json publishes each tarball's sha256, so the customDatasources resolve the new digest per arch — same auto-update model as the kiro-cli pin). For repos that pin only the Go version with no sha lines (vibekit / web-terminal-server), only `golang` matches, so the PR is just renamed — no behavior change.",
       "matchDepNames": [
         "go",
