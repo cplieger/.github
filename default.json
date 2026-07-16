@@ -302,9 +302,32 @@
         "cplieger/web-terminal-kiro"
       ],
       "automerge": false
+    },
+    {
+      "description": "git-cliff digest-ONLY updates (same version, different tarball sha) must never auto-merge: an asset whose digest changes without a version bump is exactly the release-asset-replacement event the pinned sha exists to catch — auto-merging it would ratify the swap unreviewed. Version bumps (which carry their new digest in the same PR) keep the normal minor/patch auto-merge; only the bare digest change is gated. Placed last so automerge=false wins the rule merge.",
+      "matchDepNames": [
+        "orhun/git-cliff"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "security"
+      ],
+      "prBodyNotes": [
+        ":rotating_light: **Upstream release asset changed WITHOUT a version bump.** The pinned git-cliff tarball's sha256 no longer matches the published asset for the same tag. A silently replaced release asset is a supply-chain red flag: verify upstream's changelog and announcements before merging."
+      ]
     }
   ],
   "customDatasources": {
+    "git-cliff": {
+      "defaultRegistryUrlTemplate": "https://api.github.com/repos/orhun/git-cliff/releases?per_page=100",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": [$[prerelease = false and draft = false].($tag := tag_name; $t := assets[digest != null and name = \"git-cliff-\" & $substring($tag, 1) & \"-x86_64-unknown-linux-gnu.tar.gz\"]; $count($t) = 1 ? { \"version\": $tag, \"digest\": $substringAfter($t.digest, \"sha256:\") })] }"
+      ]
+    },
     "kiro-cli": {
       "defaultRegistryUrlTemplate": "https://desktop-release.q.us-east-1.amazonaws.com/index.json",
       "format": "json",
@@ -372,6 +395,18 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\s*\\n\\s*[A-Z_]*VERSION[=:]\\s*['\"]?(?<currentValue>[^'\"\\s]+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "git-cliff version + tarball sha256 pinned as a pair at every install site in cplieger/ci (workflows + the git-cliff-version composite action). Pairs with the git-cliff customDatasource above, which maps each GitHub release to {version, digest} by exact x86_64-gnu tarball asset name (requiring exactly one match, so sidecar .sig/.sha512 assets and API ordering cannot mis-select) — so a version bump updates BOTH lines together and the sha256sum -c gates at the install sites never go stale (the same auto-update model as the kiro-cli and golang toolchain sha pins). Filtering drops prereleases, drafts, and releases whose asset carries digest=null (pre-2025 releases predating GitHub's asset-digest rollout). Known horizon: the datasource sees the newest 100 releases in one page; a pinned version older than that loses same-version digest-change detection (version bumps still flow from the newer releases on the page). Matches shell (CLIFF_VERSION=v…) and YAML-env (CLIFF_VERSION: v…) styles; the generic workflow tool-pin manager above cannot double-match these sites because its datasource character class rejects the dot in custom.git-cliff. The cplieger/ci contract probe (scripts/test-cliff-bump-semantics.sh) mirrors this manager's block shape — keep them in sync.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/",
+        "/(^|/)action\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.git-cliff)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*CLIFF_VERSION[=:]\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s*\\n\\s*CLIFF_SHA256[=:]\\s*['\"]?(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
