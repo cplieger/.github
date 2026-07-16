@@ -236,6 +236,14 @@
       "groupName": "golang toolchain"
     },
     {
+      "description": "Group the kiro-cli version+amd64-sha dep with its arm64 sha dep (custom.kiro-cli-arm64 datasource) into ONE PR so KIRO_CLI_VERSION, KIRO_CLI_SHA256, and KIRO_CLI_SHA256_ARM64 always move together and neither arch's install gate ever lands with a stale digest — the same grouping model as the golang toolchain rule above. Both entrypoints (web-terminal-kiro, vibekit) enforce the digest on BOTH arches, so an ungrouped arm64 bump would fail-closed every aarch64 boot until the paired PR landed.",
+      "matchDepNames": [
+        "kiro-cli",
+        "kiro-cli-arm64"
+      ],
+      "groupName": "kiro-cli"
+    },
+    {
       "description": "golang docker image: wait 1 day before pinning a version bump. The official golang tag publishes its multi-arch manifest in stages, so Renovate can resolve the tag digest during the publish window while the manifest-list index is still EMPTY (0 platform manifests); that empty digest then fails every consumer's native amd64+arm64 docker build with 'no match for platform in manifest'. A 1-day stabilization delay rides out the publish race (the same failure mode homelab guards PostgreSQL against). Scoped to matchDatasources=docker so it never delays the go.dev-tarball golang-version dep or the golang-amd64/golang-arm64 sha deps.",
       "matchDatasources": [
         "docker"
@@ -335,6 +343,13 @@
         "{ \"releases\": versions.{ \"version\": version, \"digest\": packages[fileType = 'zip' and targetTriple = 'x86_64-unknown-linux-gnu' and variant = 'headless'][0].sha256 } }"
       ]
     },
+    "kiro-cli-arm64": {
+      "defaultRegistryUrlTemplate": "https://desktop-release.q.us-east-1.amazonaws.com/index.json",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": versions.{ \"version\": version, \"digest\": packages[fileType = 'zip' and targetTriple = 'aarch64-unknown-linux-gnu' and variant = 'headless'][0].sha256 } }"
+      ]
+    },
     "golang-amd64": {
       "defaultRegistryUrlTemplate": "https://go.dev/dl/?mode=json&include=all",
       "format": "json",
@@ -410,12 +425,13 @@
     },
     {
       "customType": "regex",
-      "description": "kiro-cli version + sha256 pinned in entrypoint.sh (web-terminal-kiro/vibekit)",
+      "description": "kiro-cli version + per-arch sha256 pinned in entrypoint.sh (web-terminal-kiro/vibekit). Two match shapes: the amd64 pair (KIRO_CLI_VERSION + KIRO_CLI_SHA256, datasource custom.kiro-cli) and the arm64 digest line (KIRO_CLI_SHA256_ARM64, datasource custom.kiro-cli-arm64, whose `# kiro-cli <version>` trailer is the load-bearing anchor carrying the version — same trailer model as the golang per-arch sha manager). The kiro-cli packageRule below groups both deps into one PR so the version and both arch digests always move together. re2-safe; the two shapes match disjoint lines (the first regex's datasource group requires whitespace after custom.kiro-cli, so it cannot match the -arm64 marker).",
       "managerFilePatterns": [
         "/entrypoint\\.sh$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.kiro-cli)\\s+depName=(?<depName>[^\\s]+)\\s*\\nKIRO_CLI_VERSION=\"(?<currentValue>[^\"]+)\"\\s*\\nKIRO_CLI_SHA256=\"(?<currentDigest>[^\"]+)\""
+        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.kiro-cli)\\s+depName=(?<depName>[^\\s]+)\\s*\\nKIRO_CLI_VERSION=\"(?<currentValue>[^\"]+)\"\\s*\\nKIRO_CLI_SHA256=\"(?<currentDigest>[^\"]+)\"",
+        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.kiro-cli-arm64)\\s+depName=(?<depName>[^\\s]+)\\s*\\nKIRO_CLI_SHA256_ARM64=\"(?<currentDigest>[a-f0-9]{64})\"\\s+#\\s*kiro-cli\\s+(?<currentValue>\\S+)"
       ],
       "versioningTemplate": "semver"
     },
