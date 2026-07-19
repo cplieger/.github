@@ -106,6 +106,16 @@
       "minimumReleaseAge": "0 days"
     },
     {
+      "description": "Group the web-terminal npm pair (@cplieger/web-terminal-engine + @cplieger/web-terminal-ui) into ONE branch across ALL update types and managers (package.json pins, Dockerfile ARG pins, lockfiles). The UI declares the engine as a peerDependency with a caret range (^3.0.0 as of ui 4.1.0), so the two are only npm-resolvable in matching pairs: bumping the engine alone (or the UI alone) makes the consumer's tree peer-inconsistent, npm's lockfile refresh fails, and Renovate aborts the WHOLE repo run with 'Lock file error' — observed 2026-07-19 stalling every Renovate update on vibekit and web-terminal-kiro after engine v3 shipped. separateMajorMinor=false is the load-bearing part: the incident shape is exactly an engine MAJOR paired with a UI MINOR, which default grouping would still split into two peer-broken branches. Automerge stays safe under grouping (a branch automerges only when every member update allows it, so any major in the pair keeps the manual gate). matchDepNames (not matchPackageNames) so the engine repo's own frozen npm-alias devDep @cplieger/web-terminal-engine-v3 — whose packageName IS the engine — can never be swept into the group; that alias is additionally ignoreDeps'd in the engine repo. The Go module github.com/cplieger/web-terminal-engine/v* is deliberately NOT in this group: cross-language pairing is governed by the wire-compatibility floors, not package-version lockstep, and a Go major is real porting work that should stand alone.",
+      "matchDepNames": [
+        "@cplieger/web-terminal-engine",
+        "@cplieger/web-terminal-ui"
+      ],
+      "groupName": "web-terminal client pair",
+      "separateMajorMinor": false,
+      "separateMultipleMajor": false
+    },
+    {
       "description": "darkhttpd (docker-static-web) needs a manual SHA-256 recompute on every version bump: the github-tags datasource exposes the git sha, not the sha256 of the auto-generated archive that the Dockerfile's `sha256sum -c` gate verifies, and the hosted Renovate app has no postUpgradeTasks to recompute it. Label the bump PR and embed the recompute command so the maintainer's fix is one mechanical step. Centralized here (not in docker-static-web/renovate.json) so it lives beside the customManagers and is consistent with the single-source-of-truth preset model; matchDepNames keeps it a no-op for every other repo.",
       "matchManagers": [
         "custom.regex"
