@@ -297,6 +297,42 @@
       ]
     },
     {
+      "description": "web-terminal-kiro's Dockerfile pins the mise registry tag plus the sha256 of its codeload tarball (MISE_REGISTRY_SHA256). Git tags are mutable, so the sha gate is the real integrity anchor — same rationale as NERDFONT_SHA256. The generic Dockerfile customManager rewrites MISE_REGISTRY_REF but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. Scoped by matchRepositories so it never labels repos referencing jdx/mise without this pin.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "jdx/mise"
+      ],
+      "matchRepositories": [
+        "cplieger/web-terminal-kiro"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute MISE_REGISTRY_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://codeload.github.com/jdx/mise/tar.gz/refs/tags/v{{{newVersion}}}\" | sha256sum\n```"
+      ]
+    },
+    {
+      "description": "web-terminal-kiro's Dockerfile pins the aqua registry tag plus the sha256 of its codeload tarball (AQUA_REGISTRY_SHA256). Same mutable-tag rationale, stale-sha failure mode, and repo scoping as the jdx/mise rule above.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "aquaproj/aqua-registry"
+      ],
+      "matchRepositories": [
+        "cplieger/web-terminal-kiro"
+      ],
+      "addLabels": [
+        "manual-sha-bump"
+      ],
+      "prBodyNotes": [
+        ":warning: **Manual SHA bump required.** Recompute AQUA_REGISTRY_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://codeload.github.com/aquaproj/aqua-registry/tar.gz/refs/tags/v{{{newVersion}}}\" | sha256sum\n```"
+      ]
+    },
+    {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this once froze a pinned image from updating after its reference gained a docker.io/ registry prefix). Only one private consumer references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker",
