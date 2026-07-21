@@ -351,13 +351,6 @@
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+-\\d+$/"
     },
     {
-      "description": "web-terminal-kiro updates always require manual approval. This repository packages the Kiro CLI and its development toolchain, so even routine dependency updates must not inherit the fleet-wide automerge rule above. Kept with the repository-specific update exceptions at the end of packageRules so automerge=false wins when Renovate merges matching rules.",
-      "matchRepositories": [
-        "cplieger/web-terminal-kiro"
-      ],
-      "automerge": false
-    },
-    {
       "description": "git-cliff digest-ONLY updates (same version, different tarball sha) must never auto-merge: an asset whose digest changes without a version bump is exactly the release-asset-replacement event the pinned sha exists to catch — auto-merging it would ratify the swap unreviewed. Version bumps (which carry their new digest in the same PR) keep the normal minor/patch auto-merge; only the bare digest change is gated. Placed last so automerge=false wins the rule merge.",
       "matchDepNames": [
         "orhun/git-cliff"
