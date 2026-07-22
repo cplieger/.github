@@ -306,44 +306,16 @@
         "manual-sha-bump"
       ],
       "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute NERDFONT_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://github.com/ryanoasis/nerd-fonts/releases/download/v{{{newVersion}}}/Monaspace.tar.xz\" | sha256sum\n```"
+        ":warning: **Manual SHA bump required.** Recompute NERDFONT_SHA256 and paste it into the Dockerfile in this PR (newVersion carries the tag's leading v — do not prefix another):\n\n```sh\ncurl -fsSL \"https://github.com/ryanoasis/nerd-fonts/releases/download/{{{newVersion}}}/Monaspace.tar.xz\" | sha256sum\n```"
       ]
     },
     {
-      "description": "web-terminal-kiro's Dockerfile pins the mise registry tag plus the sha256 of its codeload tarball (MISE_REGISTRY_SHA256). Git tags are mutable, so the sha gate is the real integrity anchor — same rationale as NERDFONT_SHA256. The generic Dockerfile customManager rewrites MISE_REGISTRY_REF but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. Scoped by matchRepositories so it never labels repos referencing jdx/mise without this pin.",
-      "matchManagers": [
-        "custom.regex"
-      ],
+      "description": "Group the two tool-registry pins (jdx/mise + aquaproj/aqua-registry) into ONE PR per repo. Both registries feed the same Dockerfile layer (the toolbelt catalog compile in vibekit / web-terminal-kiro) and release near-daily, so separate PRs would double the CI spend for the same rebuild. The pins are tag+commit pairs auto-updated by the registry-pin customManager below (github-tags resolves the digest to the tag's dereferenced commit; git content addressing is the integrity anchor, so there is no tarball sha256 to recompute) — this replaced the former mise/aqua manual-sha-bump rules, the same retirement model as the golang toolchain sha rule above. Majors keep the default separate branch + manual gate (mise is calver, so its yearly rollover parses as a major — a once-a-year manual approval, acceptable).",
       "matchDepNames": [
-        "jdx/mise"
-      ],
-      "matchRepositories": [
-        "cplieger/web-terminal-kiro"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute MISE_REGISTRY_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://codeload.github.com/jdx/mise/tar.gz/refs/tags/v{{{newVersion}}}\" | sha256sum\n```"
-      ]
-    },
-    {
-      "description": "web-terminal-kiro's Dockerfile pins the aqua registry tag plus the sha256 of its codeload tarball (AQUA_REGISTRY_SHA256). Same mutable-tag rationale, stale-sha failure mode, and repo scoping as the jdx/mise rule above.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
+        "jdx/mise",
         "aquaproj/aqua-registry"
       ],
-      "matchRepositories": [
-        "cplieger/web-terminal-kiro"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute AQUA_REGISTRY_SHA256 and paste it into the Dockerfile in this PR:\n\n```sh\ncurl -fsSL \"https://codeload.github.com/aquaproj/aqua-registry/tar.gz/refs/tags/v{{{newVersion}}}\" | sha256sum\n```"
-      ]
+      "groupName": "tool registries"
     },
     {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this once froze a pinned image from updating after its reference gained a docker.io/ registry prefix). Only one private consumer references this image, so this is a no-op for every other repo.",
@@ -377,6 +349,23 @@
       ],
       "prBodyNotes": [
         ":rotating_light: **Upstream release asset changed WITHOUT a version bump.** The pinned git-cliff tarball's sha256 no longer matches the published asset for the same tag. A silently replaced release asset is a supply-chain red flag: verify upstream's changelog and announcements before merging."
+      ]
+    },
+    {
+      "description": "Tool-registry digest-ONLY updates (same tag, different commit) must never auto-merge: the pinned commit is the integrity anchor for the registry tarball fetch (git content addressing), so a tag that moves to a new commit without a version bump is exactly the retag event the pin exists to catch — auto-merging it would ratify the swap unreviewed. Routine version bumps carry their new commit in the same PR and keep the normal minor/patch auto-merge; only the bare digest change is gated. Same model and placement rationale as the git-cliff rule above.",
+      "matchDepNames": [
+        "jdx/mise",
+        "aquaproj/aqua-registry"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "security"
+      ],
+      "prBodyNotes": [
+        ":rotating_light: **Upstream tag moved WITHOUT a version bump.** The pinned registry commit no longer matches what the tag dereferences to. A silently moved git tag is a supply-chain red flag: verify the upstream repo's history before merging."
       ]
     }
   ],
@@ -439,6 +428,18 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[a-z-]+)\\s+depName=(?<depName>[^\\s]+)(\\s+versioning=(?<versioning>[a-z-]+))?\\nARG\\s+\\w+=(?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Dockerfile tag+commit pin pairs (`digest=commit` marker): a `# renovate: datasource=github-tags depName=... digest=commit` comment followed by an ARG *_REF=<tag> line and an ARG *_COMMIT=<sha> line (vibekit / web-terminal-kiro registry pins). currentValue is the tag, currentDigest the commit it dereferences to; github-tags resolves both on every bump (annotated tags dereference to the commit oid), so the pair auto-updates with no manual step — the Dockerfile fetches BY COMMIT, making git content addressing the integrity anchor. This replaced the mise/aqua manual-sha-bump model (codeload tarballs publish no digest to auto-track, and their bytes are not stable enough to hash anyway). The `digest=commit` marker doubles as the mutual-exclusion token: the generic ARG manager above requires ARG immediately after depName/versioning, so it can never double-match these blocks, and this manager requires the marker so it can never match plain ARG pins. re2-safe (no lookaround).",
+      "managerFilePatterns": [
+        "/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=github-tags\\s+depName=(?<depName>[^\\s]+)\\s+digest=commit\\s*\\nARG\\s+\\w+_REF=(?<currentValue>\\S+)\\s*\\nARG\\s+\\w+_COMMIT=(?<currentDigest>[a-f0-9]{40})"
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
