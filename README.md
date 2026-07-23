@@ -39,4 +39,4 @@ The Renovate preset (`default.json`) lives in this repo, which is why repos
 extend `github>cplieger/.github`. The reusable workflows and lint/format configs
 live separately in [`cplieger/ci`](https://github.com/cplieger/ci).
 
-This project was built with AI-assisted tooling using [Claude Opus](https://www.anthropic.com/claude) and [Kiro](https://kiro.dev). The human maintainer defines architecture, supervises implementation, and makes all final decisions.
+This project was built with AI-assisted tooling using [Claude](https://claude.com), [GPT](https://openai.com), and [Kiro](https://kiro.dev). The human maintainer defines architecture, supervises implementation, and makes all final decisions.
