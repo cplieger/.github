@@ -15,9 +15,9 @@ It is honest: it states residual risks rather than claiming perfection.
 
 ## Top-level claim
 
-**Each project is adequately secure for its intended use** — primarily
+**Each project is adequately secure for its intended use** (primarily
 self-hosted libraries, tools, and services and their public open-source
-consumers — **given its threat model and the value of the assets it
+consumers) **given its threat model and the value of the assets it
 handles.**
 
 ## Threat model (summary)
@@ -38,7 +38,7 @@ stage.
 
 ### Design
 
-- Memory-safe languages throughout (Go, TypeScript) — whole classes of memory
+- Memory-safe languages throughout (Go, TypeScript): whole classes of memory
   corruption vulnerabilities do not apply.
 - Least privilege at runtime: container images are distroless and run as a
   non-root user wherever the workload allows.
