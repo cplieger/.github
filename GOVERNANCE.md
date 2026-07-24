@@ -7,7 +7,7 @@ may add a repo-specific note, but this document is the default and is
 authoritative unless a repo overrides it.
 
 This model is intentionally lightweight. It is an honest description of how the
-projects are actually run today — a single maintainer — rather than an
+projects are actually run today, a single maintainer, rather than an
 aspirational structure that does not match reality. It follows the spirit of
 [CNCF's Maintainer Council template](https://contribute.cncf.io/projects/best-practices/governance/templates/governance-maintainer)
 and GitHub's
@@ -21,7 +21,7 @@ scaled down to a single-maintainer project.
 | **Maintainer** | Christopher Plieger ([@cplieger](https://github.com/cplieger)) | Sole decision-maker. Reviews and merges changes, cuts releases, triages issues and security reports, sets technical direction, and administers repository settings, secrets, and branch protection. |
 | **Contributor** | Anyone who opens an issue or pull request | Proposes changes via pull request, reports bugs and vulnerabilities, and participates in discussion. Contributors have no merge rights. |
 
-There is currently one maintainer. The maintainer holds every project role.
+One maintainer currently holds every project role.
 This is recorded plainly so contributors know who decides and how.
 
 ## Decision-making

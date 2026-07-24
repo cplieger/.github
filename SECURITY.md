@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security issues **privately** — do not open a public issue.
+Please report security issues **privately**; do not open a public issue.
 
 On the affected repository, open the **Security** tab, then click
 **"Report a vulnerability"** to open the private advisory form (GitHub

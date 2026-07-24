@@ -74,7 +74,7 @@ These are personal, best-effort projects maintained by
 [@cplieger](https://github.com/cplieger), who also acts as moderator. When an
 incident occurs, please report it promptly and **privately** using the
 **"Report a vulnerability"** button on the affected repository's **Security**
-tab — the same private channel described in [`SECURITY.md`](SECURITY.md). Do not
+tab, the same private channel described in [`SECURITY.md`](SECURITY.md). Do not
 open a public issue. Reports are handled confidentially.
 
 The maintainer takes reports seriously and will make every effort to respond in a
