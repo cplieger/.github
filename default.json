@@ -244,6 +244,23 @@
       "groupName": "golang toolchain"
     },
     {
+      "description": "Go toolchain MINOR-line bumps (1.26.5 -> 1.27.0) require manual approval. Go's version scheme is not semver: the leading 1 is frozen by the compatibility promise, so Go's `minor` is the real breaking axis, not a routine update — Go 1.27 alone moves Unicode 15 -> 17, re-backs encoding/json on the v2 implementation, changes the DEFLATE encoder's output bytes, and permanently removes the asynctimerchan GODEBUG. Without this rule the automerge-routine-update-types rule at the top of this file treats it as an ordinary `minor` and merges it unattended in every repo the day the release reaches go.dev's stable list. Deliberately scoped to `minor` only: Go PATCH updates are the stdlib-CVE stream the go-directive customManager exists to deliver (GO-2026-5856 et al.) and must keep flowing without a human, and they reach the `FROM golang:` two-component pins as a digest bump rather than a version bump, so neither is touched here. matchDepNames covers all four toolchain shapes in one rule, including BOTH deps named `golang` (the golang-version ARG GO_VERSION pin and the docker builder image), so the whole 'golang toolchain' group carries the gate and no member can drift ahead alone. Label idiom matches homelab's own critical-infra minor gate (requires-approval + minor-update). The per-release migration surface this gate protects is inventoried in .kiro/steering/go-stdlib-changelog.md.",
+      "matchDepNames": [
+        "go",
+        "golang",
+        "golang-amd64",
+        "golang-arm64"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "requires-approval",
+        "minor-update"
+      ]
+    },
+    {
       "description": "Group the kiro-cli version+amd64-sha dep with its arm64 sha dep (custom.kiro-cli-arm64 datasource) into ONE PR so KIRO_CLI_VERSION, KIRO_CLI_SHA256, and KIRO_CLI_SHA256_ARM64 always move together and neither arch's install gate ever lands with a stale digest — the same grouping model as the golang toolchain rule above. Both entrypoints (web-terminal-kiro, vibekit) enforce the digest on BOTH arches, so an ungrouped arm64 bump would fail-closed every aarch64 boot until the paired PR landed.",
       "matchDepNames": [
         "kiro-cli",
