@@ -296,6 +296,14 @@
       "groupName": "kiro-cli"
     },
     {
+      "description": "Group the toolbelt Go module with its Dockerfile ARG twin (TOOLBELT_TOOLCATALOG_VERSION) into ONE PR. The toolbelt consumers pin this module TWICE on purpose: go.mod requires the runtime engine that re-verifies required-tools.txt before every catalog swap, and the Dockerfile ARG selects the build-time `toolcatalog verify` binary — the two MUST be the same version or the build gate and the runtime gate are different verifiers. web-terminal-kiro asserts that equality with a toolbelt-pin-gate in the builder stage, so a half-bump does not drift silently, it fail-closes every image build (docker, docker-arm64, and the Trivy image scan) until the second pin catches up. Without this rule the two pins reach Renovate through DIFFERENT managers — gomod (swept into the 'Go dependencies' group branch) and the generic Dockerfile-ARG custom.regex manager (its own per-dep branch) — so one bump produced two half-PRs, neither of which can be green-and-complete on its own: observed 2026-08-03 as vibekit#827 (ARG only) + vibekit#828 (go.mod only) and web-terminal-kiro#666 (go.mod only, red on the pin gate). Same cross-manager coupling model as the 'kiro-cli' and 'golang toolchain' groups above and the 'web-terminal client pair' group, and the reason those exist: a pin pair that a gate compares must never be splittable into two branches. separateMajorMinor is left at the default because both pins are the same dep at the same version and therefore always carry the same update type — a toolbelt major keeps the group behind the manual major gate. The /** form keeps the group intact across a future Go semantic-import major (toolbelt/v3).",
+      "matchDepNames": [
+        "github.com/cplieger/toolbelt",
+        "github.com/cplieger/toolbelt/**"
+      ],
+      "groupName": "toolbelt"
+    },
+    {
       "description": "golang docker image: wait 1 day before pinning a version bump. The official golang tag publishes its multi-arch manifest in stages, so Renovate can resolve the tag digest during the publish window while the manifest-list index is still EMPTY (0 platform manifests); that empty digest then fails every consumer's native amd64+arm64 docker build with 'no match for platform in manifest'. A 1-day stabilization delay rides out the publish race (the same failure mode homelab guards PostgreSQL against). Scoped to matchDatasources=docker so it never delays the go.dev-tarball golang-version dep or the golang-amd64/golang-arm64 sha deps.",
       "matchDatasources": [
         "docker"
