@@ -159,22 +159,37 @@
       ]
     },
     {
-      "description": "darkhttpd (docker-static-web) needs a manual SHA-256 recompute on every version bump: the github-tags datasource exposes the git sha, not the sha256 of the auto-generated archive that the Dockerfile's `sha256sum -c` gate verifies, and the hosted Renovate app has no postUpgradeTasks to recompute it. Label the bump PR and embed the recompute command so the maintainer's fix is one mechanical step. Centralized here (not in docker-static-web/renovate.json) so it lives beside the customManagers and is consistent with the single-source-of-truth preset model; matchDepNames keeps it a no-op for every other repo.",
+      "description": "Recompute Dockerfile sha256 integrity pins in the SAME commit as the version bump, so these PRs are born green and automerge with no human step. No datasource publishes the sha256 of the artifact a version names (github-tags exposes a git commit, npm exposes SHA-512, keepalived.org / samba.org / the postfix mirror publish nothing), so every one of these pins used to need a maintainer to run curl | sha256sum and paste the result while the build sat red. Our Renovate is SELF-HOSTED, so postUpgradeTasks is available and does exactly this: the command runs after the manager rewrites the version literal (Renovate writes updated files to disk first, so the script sees the new version) and its Dockerfile edit is folded into the same commit. Each pin declares its own source URL in a `# repin: dep=<depName> url=<...>` marker line directly above the ARG, which is also the human-readable recompute recipe those Dockerfiles used to carry as prose. scripts/repin-sha.sh is synced from cplieger/ci; it is a no-op for any dep with no matching marker, so this rule is harmless in a repo that has not adopted a given pin. allowedCommands is globalOnly and lives in homelab/apps/renovate (anchored to exactly this invocation); with no allowlist entry nothing executes, so the mechanism is fail-closed by default. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge -- and the stale sha still fails the Dockerfile's own sha256sum -c gate, reddening ci / validate. So the worst case is the old behaviour, a red PR waiting for a human, never a silent bad merge. executionMode stays the default `update` so depName/newVersion are the single dep's values rather than a whole grouped branch's. matchDepNames keeps it a no-op for every other dep in the fleet.",
       "matchManagers": [
         "custom.regex"
       ],
       "matchDepNames": [
-        "emikulic/darkhttpd"
+        "acassen/keepalived",
+        "cplieger/tool-catalog",
+        "emikulic/darkhttpd",
+        "krallin/tini",
+        "net-snmp/net-snmp",
+        "networkupstools/nut",
+        "pkolaczk/fclones",
+        "radvd-project/radvd",
+        "ryanoasis/nerd-fonts",
+        "stephane/libmodbus",
+        "typescript",
+        "vdukhovni/postfix"
       ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute `DARKHTTPD_SHA256`, paste it into the Dockerfile in this PR, then push:\n\n```sh\ncurl -sL https://github.com/emikulic/darkhttpd/archive/refs/tags/{{{newVersion}}}.tar.gz | sha256sum\n```"
-      ]
+      "postUpgradeTasks": {
+        "commands": [
+          "sh scripts/repin-sha.sh {{{depName}}} {{{newVersion}}}"
+        ],
+        "fileFilters": [
+          "Dockerfile",
+          "**/Dockerfile"
+        ],
+        "executionMode": "update"
+      }
     },
     {
-      "description": "fclones (docker-fclones-scheduler) integrity pins are split across three coupled Dockerfile ARGs the customManager does not move together: it bumps FCLONES_VERSION but leaves FCLONES_SHA256_AMD64 and FCLONES_COMMIT stale, fail-closing the build. Label the bump and embed the recompute commands so the maintainer's fix is mechanical. matchDepNames keeps it a no-op for other repos.",
+      "description": "fclones (docker-fclones-scheduler) splits its integrity pins across the amd64 tarball sha256 and the arm64 COMMIT the version tag dereferences to. The sha256 half is handled by the repin postUpgradeTask above; the COMMIT half is not, and a stale one fail-closes the build, so this rule survives in reduced form to label the bump and embed only the command that is still manual. matchDepNames keeps it a no-op for other repos.",
       "matchManagers": [
         "custom.regex"
       ],
@@ -185,7 +200,7 @@
         "manual-sha-bump"
       ],
       "prBodyNotes": [
-        ":warning: **Manual integrity-pin bump required.**\n\nRecompute both pins and paste them into the Dockerfile in this PR:\n\n```sh\nV={{{newVersion}}}; VER=${V#v}\n# FCLONES_SHA256_AMD64 (amd64 musl tarball):\ncurl -fsSL \"https://github.com/pkolaczk/fclones/releases/download/${V}/fclones-${VER}-linux-musl-x86_64.tar.gz\" | sha256sum\n# FCLONES_COMMIT (arm64: tag dereferenced to commit):\ngit ls-remote https://github.com/pkolaczk/fclones.git \"refs/tags/${V}^{}\"\n```"
+        ":warning: **Manual commit-pin bump required.** `FCLONES_SHA256_AMD64` is recomputed automatically by the repin postUpgradeTask, but the arm64 half pins the COMMIT the tag dereferences to and no script here moves it. Recompute `ARG FCLONES_COMMIT` and paste it into the Dockerfile in this PR:\n\n```sh\ngit ls-remote https://github.com/pkolaczk/fclones.git \"refs/tags/{{{newVersion}}}^{}\"\n```\n\nFollow-up: converting this pair to the fleet's `digest=commit` customManager shape would let Renovate move it with no manual step at all."
       ]
     },
     {
@@ -204,36 +219,6 @@
       ]
     },
     {
-      "description": "keepalived (docker-keepalived) builds from the pinned keepalived.org dist tarball behind a sha256sum -c gate: the github-tags datasource bumps KEEPALIVED_VERSION but exposes no tarball checksum (keepalived.org publishes no checksum file), so KEEPALIVED_SHA256 goes stale and fail-closes the build. Label the bump PR and embed the recompute command so the maintainer's fix is one mechanical step; the tarball name drops the tag's leading v. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "acassen/keepalived"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute `KEEPALIVED_SHA256` (keepalived.org publishes no checksum file; the tarball name drops the tag's leading v), paste it into the Dockerfile in this PR, then push:\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://www.keepalived.org/software/keepalived-${V#v}.tar.gz\" | sha256sum\n```"
-      ]
-    },
-    {
-      "description": "radvd (docker-radvd) builds from the pinned release dist tarball behind a sha256sum -c gate: the github-tags datasource bumps RADVD_VERSION but leaves RADVD_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command; upstream publishes a .sha256 asset beside each tarball, so the new value can be cross-checked. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "radvd-project/radvd"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute `RADVD_SHA256`, paste it into the Dockerfile in this PR, then push (cross-check against upstream's published `radvd-<N>.tar.gz.sha256` release asset):\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://github.com/radvd-project/radvd/releases/download/${V}/radvd-${V#v}.tar.gz\" | sha256sum\n```"
-      ]
-    },
-    {
       "description": "rsync (docker-rsync-scheduler) builds from the pinned download.samba.org dist tarball (the stable release asset, NOT a GitHub tag archive) behind a sha256sum -c gate: the github-tags datasource bumps RSYNC_VERSION but leaves RSYNC_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command. Tags are plain vX.Y.Z, so default versioning needs no override. matchDepNames keeps it a no-op for other repos.",
       "matchManagers": [
         "custom.regex"
@@ -246,36 +231,6 @@
       ],
       "prBodyNotes": [
         ":warning: **Manual SHA bump required.** Verify the upstream signature FIRST, then recompute `RSYNC_SHA256` (the pin covers the download.samba.org dist tarball, not a GitHub tag archive), paste it into the Dockerfile in this PR, then push. Releases >= 3.4.0 are signed by Andrew Tridgell <andrew@tridgell.net> (signer named on https://rsync.samba.org/download.html; key from https://keys.openpgp.org/, fingerprint `9FEF 112D CE19 A0DC 7E88 2CB8 1BB2 4997 A853 5F6F`):\n\n```sh\nV={{{newVersion}}}\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz\"\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz.asc\"\ncurl -sL \"https://keys.openpgp.org/vks/v1/by-email/andrew%40tridgell.net\" | gpg --dearmor -o rsync-signing-key.gpg\ngpg --show-keys --with-fingerprint rsync-signing-key.gpg  # expect the fingerprint above\ngpgv --keyring ./rsync-signing-key.gpg \"rsync-${V#v}.tar.gz.asc\" \"rsync-${V#v}.tar.gz\"\nsha256sum \"rsync-${V#v}.tar.gz\"  # paste into RSYNC_SHA256 only after gpgv passes\n```"
-      ]
-    },
-    {
-      "description": "postfix (docker-smtp-relay) builds from the pinned postfix-release mirror tarball behind a sha256sum -c gate: the github-tags datasource bumps POSTFIX_VERSION but leaves POSTFIX_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command; the tarball name drops the tag's leading v, and the value can be cross-checked against the aports postfix APKBUILD sha512sums. The repo's legacy v20010228 tags are rejected repo-side via versioning=semver in the Dockerfile's renovate comment, so no extractVersion is needed here. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "vdukhovni/postfix"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute `POSTFIX_SHA256` (the tarball name drops the tag's leading v; cross-check against the aports postfix APKBUILD sha512sums), paste it into the Dockerfile in this PR, then push:\n\n```sh\nV={{{newVersion}}}; curl -sL \"https://high5.nl/mirrors/postfix-release/official/postfix-${V#v}.tar.gz\" | sha256sum\n```"
-      ]
-    },
-    {
-      "description": "tini (pg-autodump) is fetched as the pinned upstream static binary with per-arch integrity pins the customManager does not move together: it bumps TINI_VERSION but leaves TINI_SHA256_AMD64 and TINI_SHA256_ARM64 stale, fail-closing the build. Label the bump PR and embed the recompute commands; upstream publishes a .sha256sum asset per binary, so the new pins are fetched rather than computed. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "krallin/tini"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.**\n\nFetch upstream's published per-arch checksums and paste them into the Dockerfile in this PR:\n\n```sh\n# TINI_SHA256_AMD64:\ncurl -fsSL \"https://github.com/krallin/tini/releases/download/{{{newVersion}}}/tini-static-amd64.sha256sum\"\n# TINI_SHA256_ARM64:\ncurl -fsSL \"https://github.com/krallin/tini/releases/download/{{{newVersion}}}/tini-static-arm64.sha256sum\"\n```"
       ]
     },
     {
@@ -305,39 +260,6 @@
         "golang"
       ],
       "minimumReleaseAge": "1 day"
-    },
-    {
-      "description": "web-terminal-kiro's Dockerfile SHA-pins the TypeScript 7 native-compiler tarball per arch (TS_SHA256_X64 / TS_SHA256_ARM64) on top of the version pin; the two platform packages (@typescript/typescript-linux-{x64,arm64}) publish in lockstep at the same version. The generic Dockerfile customManager rewrites TS_VERSION but leaves the shas stale (npm exposes SHA-512 dist.integrity, not the SHA-256 the Dockerfile verifies), fail-closing the build. Label the PR and embed the per-arch recompute commands. Scoped by matchRepositories to the repos that carry this pin, so it never labels the ones that fetch tsc without a sha gate (subflux/vibekit/web-terminal-server).",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "typescript"
-      ],
-      "matchRepositories": [
-        "cplieger/web-terminal-kiro"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute both per-arch tsc pins and paste them into the Dockerfile in this PR:\n\n```sh\n# TS_SHA256_X64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/typescript-linux-x64/-/typescript-linux-x64-{{{newVersion}}}.tgz\" | sha256sum\n# TS_SHA256_ARM64\ncurl -fsSL \"https://registry.npmjs.org/@typescript/typescript-linux-arm64/-/typescript-linux-arm64-{{{newVersion}}}.tgz\" | sha256sum\n```"
-      ]
-    },
-    {
-      "description": "web-terminal-kiro's Dockerfile pins the Nerd Font release tag plus the sha256 of Monaspace.tar.xz (NERDFONT_SHA256). GitHub release assets are mutable, so this gate is the real integrity anchor. The generic Dockerfile customManager rewrites NERDFONT_VERSION but leaves the sha stale, fail-closing the build. Label the PR and embed the recompute command. matchDepNames keeps it a no-op for repos without this pin.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "ryanoasis/nerd-fonts"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Recompute NERDFONT_SHA256 and paste it into the Dockerfile in this PR (newVersion carries the tag's leading v — do not prefix another):\n\n```sh\ncurl -fsSL \"https://github.com/ryanoasis/nerd-fonts/releases/download/{{{newVersion}}}/Monaspace.tar.xz\" | sha256sum\n```"
-      ]
     },
     {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this once froze a pinned image from updating after its reference gained a docker.io/ registry prefix). Only one private consumer references this image, so this is a no-op for every other repo.",
