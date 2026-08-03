@@ -17,13 +17,14 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "description": "Auto-merge routine update types. Deliberately an explicit allowlist instead of a global automerge=true so the remaining types (rollback, replacement, bump, lockFileMaintenance) fail closed to manual review. pinDigest is included because it is the same trust class as pin/digest (one-time action-digest pinning).",
+      "description": "Auto-merge routine update types. Deliberately an explicit allowlist instead of a global automerge=true so the remaining types (rollback, replacement, bump) fail closed to manual review. pinDigest is included because it is the same trust class as pin/digest (one-time action-digest pinning). lockFileMaintenance is included because its PRs are structurally release-inert (lockfiles are in the CI detect job's path-exclusion list, so a lockfile-only push cannot publish or tag) and only ever move transitive versions inside already-declared ranges; leaving it out produced ~10 permanently-green PRs every Monday whose weekly hand-merge was pure toil, not review. Renovate does apply packageRules to the lock-file-maintenance config (flatten.ts calls applyPackageRules twice on it with updateType set), so matching it here is enough.",
       "matchUpdateTypes": [
         "minor",
         "patch",
         "digest",
         "pin",
-        "pinDigest"
+        "pinDigest",
+        "lockFileMaintenance"
       ],
       "automerge": true
     },
