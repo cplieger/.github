@@ -293,6 +293,16 @@
       "minimumReleaseAge": "1 day"
     },
     {
+      "description": "docker/buildx: wait 3 days before bumping the BUILDX_VERSION pin in cplieger/ci's docker-release.yaml. setup-buildx-action does not download from the buildx release itself — it resolves the URL from docker/actions-toolkit's .github/buildx-releases.json, a static file a bot regenerates AFTER each buildx release. Bumping the pin inside that window fails EVERY docker release in the fleet with 'Cannot find Buildx release <v> in releases JSON', and nothing catches it pre-merge: ci.yaml's build-ability job passes no version input, so every PR stays green while every post-merge release dies. Cost the fleet a release outage on 2026-08-04 (buildx v0.36.1 published 15:50Z, Renovate landed it 16:02Z, the JSON still lacked it 7+ hours later; web-terminal-kiro, web-terminal-server and vibekit all failed). 3 days rather than the golang rule's 1 day because that JSON's bot is irregular (updates observed 2026-07-23, -28, -30) and a day would not have covered this incident; it also matches the npm bake window config:best-practices already imposes. Only cplieger/ci pins buildx, so this is a no-op everywhere else.",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchDepNames": [
+        "docker/buildx"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
       "description": "Plex (plexinc/pms-docker): tags are <major>.<minor>.<patch>.<build>-<commithash>. Parse them so build-number bumps are detected while the per-release commit hash is ignored. Default docker versioning otherwise treats the -<hash> suffix as a fixed variant/compatibility tag and never finds a newer image sharing that exact suffix, so no update is ever offered (this once froze a pinned image from updating after its reference gained a docker.io/ registry prefix). Only one private consumer references this image, so this is a no-op for every other repo.",
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker",
