@@ -46,15 +46,21 @@
       "enabled": false
     },
     {
-      "description": "Consumer scorecard workflows are synced from cplieger/ci. Disable dependency updates in that destination file outside cplieger/ci so Renovate updates the canonical source once and repo-sync propagates it fleet-wide.",
+      "description": "All six synced workflow destinations (ci/codeql/coverage/release/scorecard/security, per cplieger/ci scripts/classify-repos.py) are OWNED by repo-sync: the templates carry the cplieger/ci digest pin, so every ci release already propagates fleet-wide as auto-merging chore(sync) PRs with the new digest baked in. Disable Renovate on these destination files so sync is the single writer. Previously only scorecard.yml was covered and Renovate raced repo-sync on every ci release in the other five: the sync PR usually landed first, Renovate autoclosed its now-redundant digest PR (GitHub permanently drops auto-merge arming when a PR closes), and the next release reopened the same PR unarmed — Renovate arms platform automerge only at PR creation, never on reopen — leaving permanently-green never-merging PRs cycling open/autoclosed fleet-wide (observed 2026-07-30..08-04 across 13 repos). Excluded: cplieger/ci (these filenames ARE the canonical reusable workflows there, where Renovate must keep updating pins) and cplieger/.github (hand-maintained ci.yaml; not a sync target since the repo is not releaseable). A future non-sync-target repo hand-maintaining one of these six filenames needs its own exclusion here or its pins freeze.",
       "matchManagers": [
         "github-actions"
       ],
       "matchFileNames": [
-        ".github/workflows/scorecard.yml"
+        ".github/workflows/ci.yaml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/coverage.yml",
+        ".github/workflows/release.yaml",
+        ".github/workflows/scorecard.yml",
+        ".github/workflows/security.yml"
       ],
       "matchRepositories": [
-        "!cplieger/ci"
+        "!cplieger/ci",
+        "!cplieger/.github"
       ],
       "enabled": false
     },
