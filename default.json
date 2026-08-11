@@ -457,6 +457,20 @@
     },
     {
       "customType": "regex",
+      "description": "gitleaks SCANNER version pinned in a gitleaks-action env block. The action bundles its own scanner and hard-codes it (`GITLEAKS_VERSION || \"8.24.3\"` in src/index.js as of v3.0.0), so digest-pinning the action freezes the scanner too -- pinning the action is only half the pin. 8.24.3 silently ignores global `[[allowlists]]` `paths` in .gitleaks.toml, which held homelab's weekly job red for a month on already-allowlisted test fixtures. Needs its own manager rather than the generic one above because gitleaks tags are v-prefixed while the action requires a bare value, so the v has to be stripped via extractVersionTemplate.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/",
+        "/(^|/)action\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "GITLEAKS_VERSION[=:]\\s*['\"]?(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
       "description": "git-cliff version + tarball sha256 pinned as a pair at every install site in cplieger/ci (workflows + the git-cliff-version composite action). Pairs with the git-cliff customDatasource above, which maps each GitHub release to {version, digest} by exact x86_64-gnu tarball asset name (requiring exactly one match, so sidecar .sig/.sha512 assets and API ordering cannot mis-select) — so a version bump updates BOTH lines together and the sha256sum -c gates at the install sites never go stale (the same auto-update model as the kiro-cli and golang toolchain sha pins). Filtering drops prereleases, drafts, and releases whose asset carries digest=null (pre-2025 releases predating GitHub's asset-digest rollout). Known horizon: the datasource sees the newest 100 releases in one page; a pinned version older than that loses same-version digest-change detection (version bumps still flow from the newer releases on the page). Matches shell (CLIFF_VERSION=v…) and YAML-env (CLIFF_VERSION: v…) styles; the generic workflow tool-pin manager above cannot double-match these sites because its datasource character class rejects the dot in custom.git-cliff. The cplieger/ci contract probe (scripts/test-cliff-bump-semantics.sh) mirrors this manager's block shape — keep them in sync.",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/",
