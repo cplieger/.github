@@ -58,4 +58,8 @@ All participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 ## License
 
 Unless a repository states otherwise, these projects are licensed under
-**GPL-3.0-or-later**. Contributions are accepted under the same license.
+**Apache-2.0**. Several are not: a repository's own `LICENSE` file is always
+authoritative, and the fleet deliberately mixes licenses by what each
+repository is (importable libraries and upstream wrappers are permissive,
+first-party applications are copyleft). Contributions are accepted under the
+license of the repository they target.
