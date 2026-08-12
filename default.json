@@ -170,6 +170,8 @@
         "custom.regex"
       ],
       "matchDepNames": [
+        "@cplieger/web-terminal-engine",
+        "@cplieger/web-terminal-ui",
         "acassen/keepalived",
         "cplieger/tool-catalog",
         "emikulic/darkhttpd",
