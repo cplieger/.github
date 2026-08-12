@@ -46,7 +46,7 @@
       "enabled": false
     },
     {
-      "description": "All six synced workflow destinations (ci/codeql/coverage/release/scorecard/security, per cplieger/ci scripts/classify-repos.py) are OWNED by repo-sync: the templates carry the cplieger/ci digest pin, so every ci release already propagates fleet-wide as auto-merging chore(sync) PRs with the new digest baked in. Disable Renovate on these destination files so sync is the single writer. Previously only scorecard.yml was covered and Renovate raced repo-sync on every ci release in the other five: the sync PR usually landed first, Renovate autoclosed its now-redundant digest PR (GitHub permanently drops auto-merge arming when a PR closes), and the next release reopened the same PR unarmed — Renovate arms platform automerge only at PR creation, never on reopen — leaving permanently-green never-merging PRs cycling open/autoclosed fleet-wide (observed 2026-07-30..08-04 across 13 repos). Excluded: cplieger/ci (these filenames ARE the canonical reusable workflows there, where Renovate must keep updating pins) and cplieger/.github (hand-maintained ci.yaml; not a sync target since the repo is not releaseable). A future non-sync-target repo hand-maintaining one of these six filenames needs its own exclusion here or its pins freeze.",
+      "description": "All six synced workflow destinations (ci/codeql/coverage/release/scorecard/security, per cplieger/ci scripts/classify-repos.py) are OWNED by repo-sync: the templates carry the cplieger/ci digest pin, so every ci release already propagates fleet-wide as auto-merging chore(sync) PRs with the new digest baked in. Disable Renovate on these destination files so sync is the single writer. Previously only scorecard.yml was covered and Renovate raced repo-sync on every ci release in the other five: the sync PR usually landed first, Renovate autoclosed its now-redundant digest PR (GitHub permanently drops auto-merge arming when a PR closes), and the next release reopened the same PR unarmed — Renovate arms platform automerge only at PR creation, never on reopen — leaving permanently-green never-merging PRs cycling open/autoclosed fleet-wide (observed 2026-07-30..08-04 across 13 repos). Excluded: cplieger/ci (these filenames ARE the canonical reusable workflows there, where Renovate must keep updating pins) and cplieger/.github (hand-maintained ci.yaml; not a sync target since the repo is not releaseable). A future non-sync-target repo hand-maintaining one of these six filenames needs its own exclusion here or its pins freeze, which is exactly what happened to cplieger/tool-catalog: a data repo with no releasable surface (no go.mod, jsr.json or Dockerfile), so classify-repos.py profiles it lang=none and no sync group writes its files. Its four hand-maintained pins (ci/codeql/scorecard/security) sat frozen at e0df4c8 from 2026-08-04, the day this rule landed, until 2026-08-12, 14 patch releases behind, while Renovate kept bumping every other dependency in that repo. Recompute this list whenever the sync manifest changes: the repos needing an exclusion are exactly those holding one of these six filenames that no group in classify-repos.py's output writes. Measured 2026-08-12 across all 55 non-archived non-fork repos, that set is precisely the three named here (cplieger/ci's release.yaml self-pin, cplieger/.github's hand-maintained ci.yaml, and cplieger/tool-catalog's four).",
       "matchManagers": [
         "github-actions"
       ],
@@ -60,7 +60,8 @@
       ],
       "matchRepositories": [
         "!cplieger/ci",
-        "!cplieger/.github"
+        "!cplieger/.github",
+        "!cplieger/tool-catalog"
       ],
       "enabled": false
     },
