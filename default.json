@@ -166,13 +166,14 @@
       ]
     },
     {
-      "description": "Recompute Dockerfile sha256 integrity pins in the SAME commit as the version bump, so these PRs are born green and automerge with no human step. No datasource publishes the sha256 of the artifact a version names (github-tags exposes a git commit, npm exposes SHA-512, keepalived.org / samba.org / the postfix mirror publish nothing), so every one of these pins used to need a maintainer to run curl | sha256sum and paste the result while the build sat red. Our Renovate is SELF-HOSTED, so postUpgradeTasks is available and does exactly this: the command runs after the manager rewrites the version literal (Renovate writes updated files to disk first, so the script sees the new version) and its Dockerfile edit is folded into the same commit. Each pin declares its own source URL in a `# repin: dep=<depName> url=<...>` marker line directly above the ARG, which is also the human-readable recompute recipe those Dockerfiles used to carry as prose. scripts/repin-sha.sh is synced from cplieger/ci; it is a no-op for any dep with no matching marker, so this rule is harmless in a repo that has not adopted a given pin. allowedCommands is globalOnly and lives in homelab/apps/renovate (anchored to exactly this invocation); with no allowlist entry nothing executes, so the mechanism is fail-closed by default. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge -- and the stale sha still fails the Dockerfile's own sha256sum -c gate, reddening ci / validate. So the worst case is the old behaviour, a red PR waiting for a human, never a silent bad merge. executionMode stays the default `update` so depName/newVersion are the single dep's values rather than a whole grouped branch's. matchDepNames keeps it a no-op for every other dep in the fleet.",
+      "description": "Recompute Dockerfile sha256 integrity pins in the SAME commit as the version bump, so these PRs are born green and automerge with no human step. No datasource publishes the sha256 of the artifact a version names (github-tags exposes a git commit, npm exposes SHA-512, keepalived.org / samba.org / the postfix mirror publish nothing), so every one of these pins used to need a maintainer to run curl | sha256sum and paste the result while the build sat red. Our Renovate is SELF-HOSTED, so postUpgradeTasks is available and does exactly this: the command runs after the manager rewrites the version literal (Renovate writes updated files to disk first, so the script sees the new version) and its Dockerfile edit is folded into the same commit. Each pin declares its own source URL in a `# repin: dep=<depName> url=<...>` marker line directly above the ARG, which is also the human-readable recompute recipe those Dockerfiles used to carry as prose. scripts/repin-sha.sh is synced from cplieger/ci; it is a no-op for any dep with no matching marker, so this rule is harmless in a repo that has not adopted a given pin. allowedCommands is globalOnly and lives in homelab/apps/renovate (anchored to exactly this invocation); with no allowlist entry nothing executes, so the mechanism is fail-closed by default. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge -- and the stale sha still fails the Dockerfile's own sha256sum -c gate, reddening ci / validate. So the worst case is the old behaviour, a red PR waiting for a human, never a silent bad merge. executionMode stays the default `update` so depName/newVersion are the single dep's values rather than a whole grouped branch's. matchDepNames keeps it a no-op for every other dep in the fleet. WHEN A PIN MAY JOIN THIS RULE: recomputing a hash proves nothing about who produced the bytes, so a pin whose ONLY integrity story is this sha256 gains authenticity from the reviewed commit and nothing else. That is still worth automating (the pin freezes the input and re-checks it on every later rebuild), but a pin whose upstream publishes a detached signature should verify it IN THE BUILD against a keyring committed in-repo, and then the recompute cannot degrade anything — swapped bytes fail gpgv whoever hashed them. docker-smtp-relay's postfix-release.gpg is the model and docker-rsync-scheduler followed it in 2026-08 (which is what let RsyncProject/rsync move from the manual-sha-bump rules below into this one); prefer that shape over withholding the automation.",
       "matchManagers": [
         "custom.regex"
       ],
       "matchDepNames": [
         "@cplieger/web-terminal-engine",
         "@cplieger/web-terminal-ui",
+        "RsyncProject/rsync",
         "acassen/keepalived",
         "cplieger/tool-catalog",
         "emikulic/darkhttpd",
@@ -225,21 +226,6 @@
       ],
       "prBodyNotes": [
         ":warning: **Manual pin bump + re-audit required.** rmlint builds from source with coupled pins the bot cannot move.\n\n1. Recompute `ARG RMLINT_COMMIT` (the tag dereferenced to its commit) and paste it into the Dockerfile:\n\n```sh\ngit ls-remote https://github.com/sahib/rmlint.git \"refs/tags/{{{newVersion}}}^{}\"\n```\n\n2. Re-audit `rmlint --help` for new output-redirect / command-exec flags, extend `dangerousFlags` in `config.go` if needed, and bump the `Audited against rmlint <version>;` comment to `{{{newVersion}}}` (a go-builder grep gate fails the build until it matches). See CONTRIBUTING.md."
-      ]
-    },
-    {
-      "description": "rsync (docker-rsync-scheduler) builds from the pinned download.samba.org dist tarball (the stable release asset, NOT a GitHub tag archive) behind a sha256sum -c gate: the github-tags datasource bumps RSYNC_VERSION but leaves RSYNC_SHA256 stale, fail-closing the build. Label the bump PR and embed the recompute command. Tags are plain vX.Y.Z, so default versioning needs no override. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "RsyncProject/rsync"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        ":warning: **Manual SHA bump required.** Verify the upstream signature FIRST, then recompute `RSYNC_SHA256` (the pin covers the download.samba.org dist tarball, not a GitHub tag archive), paste it into the Dockerfile in this PR, then push. Releases >= 3.4.0 are signed by Andrew Tridgell <andrew@tridgell.net> (signer named on https://rsync.samba.org/download.html; key from https://keys.openpgp.org/, fingerprint `9FEF 112D CE19 A0DC 7E88 2CB8 1BB2 4997 A853 5F6F`):\n\n```sh\nV={{{newVersion}}}\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz\"\ncurl -sLO \"https://download.samba.org/pub/rsync/rsync-${V#v}.tar.gz.asc\"\ncurl -sL \"https://keys.openpgp.org/vks/v1/by-email/andrew%40tridgell.net\" | gpg --dearmor -o rsync-signing-key.gpg\ngpg --show-keys --with-fingerprint rsync-signing-key.gpg  # expect the fingerprint above\ngpgv --keyring ./rsync-signing-key.gpg \"rsync-${V#v}.tar.gz.asc\" \"rsync-${V#v}.tar.gz\"\nsha256sum \"rsync-${V#v}.tar.gz\"  # paste into RSYNC_SHA256 only after gpgv passes\n```"
       ]
     },
     {
