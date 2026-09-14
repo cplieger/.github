@@ -547,7 +547,7 @@
     },
     {
       "customType": "regex",
-      "description": "FFmpeg version (n-prefixed tags, e.g. subflux Dockerfile)",
+      "description": "FFmpeg version (n-prefixed tags, e.g. subflux Dockerfile). Versioning is `loose`, NOT `semver`: the first release on an FFmpeg line is a two-component tag (`n8.1`, `n9.0`), and semver rejects `8.1` as a version (`isValid` returns false), so the dep is dropped at lookup with `skipReason: invalid-value` — no PR, no dashboard row, no warning, while the manager still reports a match. Measured 2026-09-14 on subflux, whose pin sat at 8.1 (2026-03-16) through the 8.1.1, 8.1.2, 9.0 and 9.0.1 releases for exactly this reason; a dry-run flips to a 8.1.2 patch plus a 9.0.1 major the moment the scheme changes. `loose` compares variable-length numeric versions segment-wise, and its getNewValue writes the resolved version verbatim, so a two-component release stays two-component and the `n${FFMPEG_VERSION}` tarball URL still resolves — a coercing scheme may write `9.0.0`, which is not a tag. Keep extractVersion anchored: that is what filters the `-dev` branch tags (`n8.1-dev`, `n9.1-dev`) out of the release set.",
       "managerFilePatterns": [
         "/Dockerfile$/"
       ],
@@ -557,7 +557,7 @@
       "depNameTemplate": "FFmpeg/FFmpeg",
       "datasourceTemplate": "github-tags",
       "extractVersionTemplate": "^n(?<version>\\d+\\.\\d+(?:\\.\\d+)?)$",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
     },
     {
       "customType": "regex",
