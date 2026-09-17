@@ -7,7 +7,11 @@ Please report security issues **privately**; do not open a public issue.
 On the affected repository, open the **Security** tab, then click
 **"Report a vulnerability"** to open the private advisory form (GitHub
 [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-is enabled on all public repositories).
+is enabled on every first-party repository). If the affected repository has no
+such button, which is the case for an archived repository and for a fork of an
+upstream project, file the report on the
+[`cplieger/.github`](https://github.com/cplieger/.github/security/advisories/new)
+Security tab instead and name the affected repository in the report.
 
 Include the affected version/commit, reproduction steps, and impact. You will
 receive an acknowledgement within **7 days**. Reports are handled under a
@@ -26,13 +30,14 @@ artifact type:
 
 - **Container images** (`ghcr.io/cplieger/<image>`, `docker.io/cplieger/<image>`)
   are signed with [cosign](https://github.com/sigstore/cosign) keyless (OIDC)
-  and ship a build-provenance attestation and an attested SBOM. Verify:
+  and ship an attested SBOM and a BuildKit SLSA provenance attestation. Verify:
 
   ```sh
   cosign verify ghcr.io/cplieger/<image>:<tag> \
     --certificate-identity-regexp '^https://github.com/cplieger/' \
     --certificate-oidc-issuer https://token.actions.githubusercontent.com
-  gh attestation verify oci://ghcr.io/cplieger/<image>:<tag> --owner cplieger
+  docker buildx imagetools inspect ghcr.io/cplieger/<image>:<tag> \
+    --format '{{ json .Provenance }}'
   ```
 
 - **npm / JSR packages** (`@cplieger/*`) are published through GitHub OIDC
@@ -42,7 +47,7 @@ artifact type:
 
 - **Go modules** are distributed by Git tag and the Go checksum database
   (`sum.golang.org`), with hashes recorded in `go.sum`. Integrity is verified
-  automatically by the Go toolchain (`GOFLAGS=-mod=readonly`, `go mod verify`).
+  automatically by the Go toolchain, and on demand with `go mod verify`.
   Go modules are not separately signed, so author-identity verification beyond
   the checksum database is not currently available.
 
@@ -51,10 +56,12 @@ artifact type:
 - Publishing uses GitHub **OIDC trusted publishers** (npm/JSR) and **keyless
   cosign** signing, so there are no long-lived registry or signing tokens to
   store or leak.
-- The only per-repo CI secret is a Docker Hub token (`DOCKERHUB_TOKEN`) for
-  repos whose image dual-publishes to Docker Hub. It is stored as a
-  repository-scoped GitHub Actions encrypted secret and is rotated via the
-  Docker Hub PAT on suspected exposure.
+- Image repos hold a Docker Hub username and token (`DOCKERHUB_USERNAME`,
+  `DOCKERHUB_TOKEN`) for the Docker Hub half of a dual publish, stored as
+  repository-scoped GitHub Actions encrypted secrets; the token is rotated as a
+  Docker Hub PAT on suspected exposure. Library repos hold no secrets.
+  `cplieger/ci`, which drives every repo's pipelines, additionally holds the
+  scoped GitHub tokens its release, sync, and audit automation needs.
 - Deployment secrets are **age-encrypted at rest in Git** and decrypted only at
   deploy time; plaintext secrets are never committed.
 - `gitleaks` runs in CI and GitHub secret-scanning push protection is enabled
@@ -65,8 +72,9 @@ artifact type:
 - Dependencies are pinned: Go modules via `go.sum`, npm/JSR via lockfiles,
   GitHub Actions by commit SHA, and container base images by digest.
 - [Renovate](https://docs.renovatebot.com/) (configuration inherited from this
-  repository's shared preset) opens and auto-merges dependency, action, and
-  base-image updates on green CI, keeping the supply chain current.
+  repository's shared preset) opens dependency, action, and base-image updates
+  and auto-merges the routine ones, meaning minor, patch, and digest bumps, on
+  green CI. Major updates and security-advisory bumps are reviewed by hand.
 - New dependencies are selected for necessity, an OSI-compatible license, and
   active maintenance; the standard library is preferred where practical.
 - Supply-chain risk is monitored continuously: Trivy and Dependabot alerts feed

@@ -25,20 +25,19 @@ Repo-local only (GitHub does **not** inherit these from `.github`):
 - `CODEOWNERS`: only governs this repo; each repo needs its own.
 - `README.md`: per-repo.
 
-Also here, but outside GitHub's inheritance: the account-wide default docs
-that each repo's [OpenSSF Best Practices](https://www.bestpractices.dev/)
-entry links to. A repo with specific content overrides them with its own copy
-(`ROADMAP.md` in the repo root, `docs/assurance-case.md`).
+Also here, but outside GitHub's inheritance: two account-wide default docs. A
+repo with specific content overrides `ROADMAP.md` with its own copy in the repo
+root.
 
 - `ROADMAP.md`: default roadmap for the mature, maintenance-mode projects
 - `CONTINUITY.md`: continuity and access-recovery plan (single-maintainer
   risk, stated honestly)
-- `assurance-case.md`: default security assurance case
 
-The Renovate preset (`default.json`) lives in this repo, which is why repos
-extend `github>cplieger/.github`; `org-inherited-config.json` makes Renovate
-apply the same preset account-wide through its inherited-config mechanism.
-The reusable workflows and lint/format configs
-live separately in [`cplieger/ci`](https://github.com/cplieger/ci).
+The Renovate preset (`default.json`) lives in this repo and covers the public
+repos. `org-inherited-config.json` is what applies it account-wide through
+Renovate's inherited-config mechanism, and it is the only place the preset is
+referenced. No public repo carries a `renovate.json` of its own. The reusable
+workflows and lint/format configs live separately in
+[`cplieger/ci`](https://github.com/cplieger/ci).
 
 This project was built with AI-assisted tooling using [Claude](https://claude.com), [GPT](https://openai.com), and [Kiro](https://kiro.dev). The human maintainer defines architecture, supervises implementation, and makes all final decisions.
