@@ -139,7 +139,8 @@ permanently available at
 <https://www.contributor-covenant.org/version/3/0/>.
 
 Contributor Covenant is stewarded by the Organization for Ethical Source and
-licensed under CC BY-SA 4.0. For answers to common questions, see the
+licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+For answers to common questions, see the
 [FAQ](https://www.contributor-covenant.org/faq). The enforcement ladder was
 inspired by the work of
 [Mozilla's code of conduct team](https://github.com/mozilla/inclusion).
