@@ -323,6 +323,20 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "description": "A TypeScript nightly pin (`7.x.y-dev.<date>`, published about daily under the `next` tag) moves once a week, not once a day: a repository that pins a nightly does so for a fix the stable line lacks, and a daily PR per nightly is churn its CI pays for with no decision in it. The update is never auto-merged, because a nightly's checker can add or drop diagnostics on unchanged code (measured between 7.0.2 and 7.1.0-dev.20261003.1 on hono, TanStack Query and knip), so a person reads the CI run before taking it. Scoped by the current value, so a repository on a stable TypeScript is untouched.",
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchCurrentValue": "/-dev\\./",
+      "schedule": [
+        "* 0-5 * * 1"
+      ],
+      "automerge": false
+    },
+    {
       "description": "git-cliff digest-ONLY updates (same version, different tarball sha) must never auto-merge: an asset whose digest changes without a version bump is exactly the release-asset-replacement event the pinned sha exists to catch \u2014 auto-merging it would ratify the swap unreviewed. Version bumps (which carry their new digest in the same PR) keep the normal minor/patch auto-merge; only the bare digest change is gated. Placed last so automerge=false wins the rule merge.",
       "matchDepNames": [
         "orhun/git-cliff"
