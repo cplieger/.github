@@ -148,6 +148,18 @@
       "separateMultipleMajor": false
     },
     {
+      "description": "Group docker-caddy's two upstream Caddy stages (FROM caddy:<line>-builder and FROM caddy:<line>) into ONE branch across all update types. The Dockerfile's donor-contract stage fails the build unless the xcaddy-built binary and the runtime donor report the same Caddy version, so the two digests are only buildable in matching pairs: split, each PR is born red with 'custom binary is vX but the runtime donor is vY' and neither can merge first. Docker versioning treats -builder as a compatibility suffix, which is why Renovate splits them by default. matchManagers dockerfile keeps it off any compose.yaml or other caddy reference; only docker-caddy's Dockerfile pulls caddy as a FROM.",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "caddy"
+      ],
+      "groupName": "caddy builder and runtime pair",
+      "separateMajorMinor": false,
+      "separateMultipleMajor": false
+    },
+    {
       "description": "Never bump the frozen wire-compat alias. web-terminal-engine's web/package.json carries the npm alias @cplieger/web-terminal-engine-v3 -> @cplieger/web-terminal-engine@2.8.0, the last published decoder that speaks wire protocol 3. web/src/wire-compatibility.test.ts imports it as decodePublishedV3 and runs it against the CURRENT fixtures, which is the only evidence that the client's declared floor (MIN_SUPPORTED_SERVER_WIRE_VERSION = 3) is still true rather than aspirational; the same test asserts published.source.tag === 'v2.8.0'. Bumping the alias to the current release turns the gate into current-vs-current and silently guts it, so the alias advances only as a deliberate change that raises the receiver floor and regenerates the frozen wire-golden fixtures in the same commit. This rule lives HERE and not in the engine repo because renovate.json is itself a synced destination: the identical guard was added there as 6ec8928 and a chore(sync) PR (45fefff) overwrote it with the one-line preset shim 20 minutes later, after which Renovate re-proposed the bump (PR #337 for v3, PR #465 for v4). matchDepNames matches the ALIAS key, which is unique fleet-wide, so this is a no-op in every other repo; the engine's real dependents keep updating through the pair group above.",
       "matchDepNames": [
         "@cplieger/web-terminal-engine-v3"
