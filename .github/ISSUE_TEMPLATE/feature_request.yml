@@ -1,38 +1,38 @@
 name: Feature request
-description: Propose an enhancement.
+description: Suggest a change or a new option.
 labels: [enhancement]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the suggestion. Describe the need first, then the proposed
-        solution, so the trade-offs can be weighed.
+        Thanks for the suggestion. Describe what you need first, then the change you have in mind, so each option can be weighed against that need.
   - type: textarea
     id: problem
     attributes:
-      label: Problem
-      description: What need or use case is unmet?
+      label: What you need
+      description: What you are trying to do, and what stops you today.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Proposed solution
+      label: Proposed change
+      description: How the project could meet that need.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives considered
-      description: Other approaches or workarounds you have evaluated.
+      label: Alternatives
+      description: Other approaches or workarounds you tried or considered.
     validations:
       required: false
   - type: checkboxes
     id: checks
     attributes:
-      label: Before submitting
+      label: Before you submit
       options:
-        - label: I searched existing issues and this is not a duplicate.
+        - label: I searched the existing issues and this is not a duplicate.
           required: true
-        - label: I agree to follow this project's Code of Conduct.
+        - label: I agree to follow the project's Code of Conduct.
           required: true

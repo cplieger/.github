@@ -1,21 +1,17 @@
 ## Summary
 
-<!-- What does this change and why? -->
+<!-- What this pull request changes, and why. -->
 
 ## Linked issues
 
-<!-- e.g. "Fixes #123" to auto-close, or "Relates to #123". Delete if none. -->
-
-## Changes
-
--
+<!-- For example "Fixes #123" to close an issue when this merges, or "Relates to #123". Delete this section if there is none. -->
 
 ## Testing
 
-<!-- How was this verified? -->
+<!-- How you checked that the change works: the commands you ran, the tests you added, what you tried by hand. -->
 
 ## Checklist
 
-- [ ] Commits follow Conventional Commits
-- [ ] Tests added/updated and passing
-- [ ] Docs updated if behavior changed
+- [ ] The commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
+- [ ] Tests cover the change, and the checks pass.
+- [ ] If the change alters behavior, the documentation describes the new behavior.

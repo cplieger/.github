@@ -1,81 +1,44 @@
-# Security Policy
+# Security policy
+
+This policy covers every cplieger repository that has no security policy of its own.
 
 ## Reporting a vulnerability
 
-Please report security issues **privately**; do not open a public issue.
+Report a vulnerability privately. Do not open a public issue, pull request or comment about it.
 
-On the affected repository, open the **Security** tab, then click
-**"Report a vulnerability"** to open the private advisory form (GitHub
-[private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-is enabled on every first-party repository). If the affected repository has no
-such button, which is the case for an archived repository and for a fork of an
-upstream project, file the report on the
-[`cplieger/.github`](https://github.com/cplieger/.github/security/advisories/new)
-Security tab instead and name the affected repository in the report.
+1. Open the affected repository on GitHub and select the **Security** tab.
+2. Select **Report a vulnerability**. GitHub opens a private form. Only you, the maintainer and the people the maintainer adds to your report can read it. GitHub's guide to [reporting a vulnerability privately](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability) shows each step.
+3. Describe the affected version or commit, the steps that reproduce the problem and what an attacker could do with it.
 
-Include the affected version/commit, reproduction steps, and impact. You will
-receive an acknowledgement within **7 days**. Reports are handled under a
-coordinated disclosure process: a fix is prepared privately and released before
-public disclosure, normally within **90 days** of the initial report.
+A private repository, an archived repository or a fork has no **Report a vulnerability** button. If the repository you're reporting on has none, use the [form on cplieger/.github](https://github.com/cplieger/.github/security/advisories/new) and name the repository in your report.
+
+Some repositories package another project's software, such as the program a container image runs. If the problem is in that software, please report it to the upstream project too.
+
+## What happens after you report
+
+You'll get a reply within 7 days. The fix is prepared in private and released before the vulnerability is made public, normally within 90 days of your report.
 
 ## Supported versions
 
-Only the latest released version of each project is supported. Pre-1.0 (`0.x`)
-releases may contain breaking changes between minor versions.
+A repository that publishes releases gets security fixes in its latest release only, unless its README or its own security policy names other supported versions. Older releases, including older major versions, do not get them. To get a fix, upgrade to the latest release. A repository that publishes no releases gets fixes on its default branch. In a repository whose version is below 1.0, a minor version can contain breaking changes, so read the release notes before you upgrade.
 
-## Verifying releases
+## Verifying a release
 
-How to verify the integrity and authenticity of a release depends on the
-artifact type:
+How you check a release depends on what the repository publishes.
 
-- **Container images** (`ghcr.io/cplieger/<image>`, `docker.io/cplieger/<image>`)
-  are signed with [cosign](https://github.com/sigstore/cosign) keyless (OIDC)
-  and ship an attested SBOM and a BuildKit SLSA provenance attestation. Verify:
+Container images are published to `ghcr.io/cplieger/<image>` and `docker.io/cplieger/<image>`. A release is the same image in both registries. A pre-release version, such as `v1.2.3-dev.4`, is published to `ghcr.io` only. Every image is signed with [cosign](https://github.com/sigstore/cosign) when it's built. Each image also carries a signed SBOM, the list of software inside it, and a record of how it was built. To check the signature and the SBOM, run:
 
-  ```sh
-  cosign verify ghcr.io/cplieger/<image>:<tag> \
-    --certificate-identity-regexp '^https://github.com/cplieger/' \
-    --certificate-oidc-issuer https://token.actions.githubusercontent.com
-  docker buildx imagetools inspect ghcr.io/cplieger/<image>:<tag> \
-    --format '{{ json .Provenance }}'
-  ```
+```sh
+cosign verify ghcr.io/cplieger/<image>:<tag> \
+  --certificate-identity-regexp '^https://github.com/cplieger/ci/\.github/workflows/docker-release\.yaml@' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+cosign verify-attestation --type spdxjson ghcr.io/cplieger/<image>:<tag> \
+  --certificate-identity-regexp '^https://github.com/cplieger/ci/\.github/workflows/docker-release\.yaml@' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
 
-- **npm / JSR packages** (`@cplieger/*`) are published through GitHub OIDC
-  trusted publishers, which attach a Sigstore provenance attestation. Verify
-  with `npm audit signatures` (npm) or the provenance link shown on the JSR
-  package page.
+To read the build record, run `docker buildx imagetools inspect ghcr.io/cplieger/<image>:<tag> --format '{{ json .Provenance }}'`.
 
-- **Go modules** are distributed by Git tag and the Go checksum database
-  (`sum.golang.org`), with hashes recorded in `go.sum`. Integrity is verified
-  automatically by the Go toolchain, and on demand with `go mod verify`.
-  Go modules are not separately signed, so author-identity verification beyond
-  the checksum database is not currently available.
+npm packages, named `@cplieger/<package>`, are published from GitHub Actions with a [provenance statement](https://docs.npmjs.com/generating-provenance-statements). It links each version to the commit and the build that produced it. In a project that installs one, run `npm audit signatures` to check it.
 
-## Secrets management
-
-- Publishing uses GitHub **OIDC trusted publishers** (npm/JSR) and **keyless
-  cosign** signing, so there are no long-lived registry or signing tokens to
-  store or leak.
-- Image repos hold a Docker Hub username and token (`DOCKERHUB_USERNAME`,
-  `DOCKERHUB_TOKEN`) for the Docker Hub half of a dual publish, stored as
-  repository-scoped GitHub Actions encrypted secrets; the token is rotated as a
-  Docker Hub PAT on suspected exposure. Library repos hold no secrets.
-  `cplieger/ci`, which drives every repo's pipelines, additionally holds the
-  scoped GitHub tokens its release, sync, and audit automation needs.
-- Deployment secrets are **age-encrypted at rest in Git** and decrypted only at
-  deploy time; plaintext secrets are never committed.
-- `gitleaks` runs in CI and GitHub secret-scanning push protection is enabled
-  to catch accidental commits of credentials.
-
-## Dependency management
-
-- Dependencies are pinned: Go modules via `go.sum`, npm/JSR via lockfiles,
-  GitHub Actions by commit SHA, and container base images by digest.
-- [Renovate](https://docs.renovatebot.com/) (configuration inherited from this
-  repository's shared preset) opens dependency, action, and base-image updates
-  and auto-merges the routine ones, meaning minor, patch, and digest bumps, on
-  green CI. Major updates and security-advisory bumps are reviewed by hand.
-- New dependencies are selected for necessity, an OSI-compatible license, and
-  active maintenance; the standard library is preferred where practical.
-- Supply-chain risk is monitored continuously: Trivy and Dependabot alerts feed
-  remediation (via Renovate bumps), and CodeQL covers first-party code.
+Go modules are published as Git tags. By default the Go toolchain checks every module it downloads against the [Go checksum database](https://sum.golang.org). Run `go mod verify` to check the copies already on your machine. Go modules carry no separate signature.
