@@ -7,7 +7,7 @@ This repository holds the default community-health files and the shared Renovate
 GitHub uses a file from this repository for any cplieger repository, public or private, that has no file of that type itself. A repository's own copy in `.github/`, its root or `docs/` takes precedence. A repository with its own `.github/ISSUE_TEMPLATE` folder gets none of the default forms. GitHub shows the defaults on its website only, and they are not part of a repository's clones, packages or downloads. The defaults work only while this repository is public.
 
 - `CODE_OF_CONDUCT.md` is adapted from the [Contributor Covenant 3.0](https://www.contributor-covenant.org/version/3/0/code_of_conduct/), which is licensed under CC BY-SA 4.0.
-- `CONTRIBUTING.md` covers the pull request workflow, the commit prefixes that decide each release, code style and review.
+- `CONTRIBUTING.md` covers the commit types that decide each release, the files that never release, the files synced from cplieger/ci, the local checks and review.
 - `SECURITY.md` explains how to report a vulnerability privately from a repository's Security tab and how to verify a release. The maintainer acknowledges a report within 7 days and releases a fix before public disclosure, normally within 90 days of the report.
 - `SUPPORT.md` says where to ask a question, report a bug or report a vulnerability.
 - `.github/ISSUE_TEMPLATE/` holds the bug report, feature request and question forms. Its `config.yml` turns off blank issues and links the security policy.
@@ -18,7 +18,7 @@ The forms add the `bug`, `enhancement` and `question` labels. GitHub needs a for
 
 ## Account-wide documents GitHub does not serve
 
-`GOVERNANCE.md`, `ROADMAP.md` and `CONTINUITY.md` cover the cplieger repositories as a whole, but GitHub does not use them as defaults. `CONTRIBUTING.md` links `GOVERNANCE.md` and `CONTINUITY.md`, and all three are in this repository.
+`GOVERNANCE.md`, `ROADMAP.md` and `CONTINUITY.md` cover the cplieger repositories as a whole, but GitHub does not use them as defaults. All three are in this repository.
 
 - `GOVERNANCE.md` describes the single-maintainer model, how decisions are made and how a contributor can become a maintainer.
 - `ROADMAP.md` is the default roadmap for the mature projects in maintenance mode. A repository that is still evolving may keep its own `ROADMAP.md`, which takes precedence. No repository keeps one today.
