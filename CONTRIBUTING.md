@@ -1,61 +1,55 @@
 # Contributing
 
-Thanks for contributing. These defaults apply across `cplieger` repos; a repo
-may override them with its own `CONTRIBUTING.md`.
+These rules apply to every public cplieger repository.
 
-By participating you agree to abide by our
-[Code of Conduct](CODE_OF_CONDUCT.md). Report security vulnerabilities through
-the [security policy](SECURITY.md), never in a public issue. For usage
-questions, see [SUPPORT.md](SUPPORT.md).
+## Commits and releases
 
-## Workflow
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/). The subject of each releasing commit becomes a line in the release notes, so write it for the person who reads them.
 
-1. Fork / branch from `main`.
-2. Make focused changes with tests.
-3. Ensure CI passes locally where possible (lint, typecheck/vet, tests).
-4. Open a PR; fill in the template.
+In a repository with a `cliff.toml`, the commit type decides whether a change releases and its version number:
 
-## Commit messages
-
-In the repos the central pipeline releases, releases are automated from
-**[Conventional Commits](https://www.conventionalcommits.org/)** via git-cliff;
-your commit type determines the version bump:
-
-| Prefix | Effect |
+| Commit | Release |
 | --- | --- |
-| `feat:` | new feature |
-| `fix:` | bug fix |
-| `sec:` | security fix |
-| `refactor:` `perf:` | patch release, listed under Changed |
-| `chore:` `ci:` `docs:` `style:` `test:` | no release |
-| `feat!:` / `BREAKING CHANGE:` | breaking change |
+| `feat:` | minor version, listed under Added |
+| `fix:` | patch version, listed under Fixed |
+| `sec:` | patch version, listed under Security |
+| `refactor:`, `perf:` or a type this table does not name | patch version, listed under Changed |
+| `chore(deps):` | patch version, listed under Dependencies |
+| `chore:`, `chore(devdeps):`, `ci:`, `docs:`, `style:`, `test:`, `fuzz:`, `lint:`, `debug:`, `release:` | no release |
+| `!` after a type that releases, or a `BREAKING CHANGE:` footer on one | major version |
 
-Pre-1.0 stays within `0.x` (see the repo's `cliff.toml`, where one exists).
+A hardening fix that adds no public API is a `sec:` commit, not a `feat:`.
 
-## Code style
+A repository with no release yet starts at `v1.0.0`. A repository whose latest version is below 1.0 stays in `0.x`. There a `feat:` commit raises the patch version and a breaking change raises the minor version.
 
-Formatting and linting are enforced in CI (golangci-lint for Go; eslint and
-prettier for TypeScript; ruff for Python; shellcheck, shfmt, and hadolint for
-shell and Dockerfiles; markdownlint for every repo). Run the relevant tool
-before pushing. [`cplieger/ci`](https://github.com/cplieger/ci) carries
-`ci-local.sh`, which replays a repo's whole CI battery locally.
+The release notes print a `BREAKING CHANGE:` footer as the upgrade steps. Write it as a bullet list, one step per bullet.
 
-## Code review
+A commit that changes only these files never releases, whatever its type:
 
-All changes reach `main` through a pull request and must pass the required
-`ci / validate` status check (lint, typecheck/vet, tests, and gitleaks secret
-scanning) before they can merge. CodeQL runs on every pull request, and Trivy
-runs on pull requests that touch dependencies, Dockerfiles, or shell scripts;
-both report to the Security tab. Their findings are triaged and resolved as
-part of review rather than gating the merge mechanically. The maintainer
-reviews every pull request a person opens, external ones included, before
-merging; automated dependency and config-sync pull requests merge on green CI.
+- Markdown files, the root `LICENSE` and the root `.github/` folder
+- the root `alerts/` folder and the root `compose.yaml`
+- the root `tests/` folder, any `testdata/` folder, and `_test.go`, `.test.ts` and `.spec.ts` files
+- any `package-lock.json`, `.punused-ignore` or knip configuration file
+- the root `.editorconfig`, `.gitattributes`, `.gitignore` and `.dockerignore`
 
-Review explicitly covers the security impact of a change, not just
-correctness: new or changed handling of untrusted input, trust boundaries,
-dependency and supply-chain changes, secret handling, and anything the
-automated scanners flag. Findings are resolved before merge, not after.
+## Files that belong to cplieger/ci
 
-This is currently a single-maintainer project; see
-[GOVERNANCE.md](GOVERNANCE.md) and [CONTINUITY.md](CONTINUITY.md) for the
-governance and continuity plan.
+A file whose opening comment says it is synced from [cplieger/ci](https://github.com/cplieger/ci) is a copy that the next sync replaces. Change it there. `.prettierrc.json`, `.stylelintrc.json` and `.htmlvalidate.json` are copies too, because a JSON file cannot carry that line.
+
+## Checks
+
+Clone [cplieger/ci](https://github.com/cplieger/ci) next to the repository. From the repository root, run `bash ../ci/ci-local.sh` before you push. A result that reports `check(s) not validated locally` leaves those checks to CI.
+
+The `scripts/install-local-tools.sh` script in cplieger/ci installs the tool versions CI uses.
+
+In a package published to npm or JSR, the `version` field in `package.json` and `jsr.json` is a placeholder that the release replaces with the tag's version. Leave it as it is.
+
+## Review
+
+The maintainer reviews every pull request a person opens before it merges. A library takes a new option or exported name when a cplieger app benefits from it now or soon, or when the concept the library models expects it.
+
+If an AI assistant wrote a change, have other AI agents review it in depth before you open the pull request. Ideally they run a model from a different provider than the one that wrote it. Use a top-tier model such as Claude Opus for that review, not a small fast one. Open the pull request from the reviewed version, never from the first draft.
+
+## Conduct and security
+
+Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md). Report a vulnerability privately through the [security policy](SECURITY.md), never in a public issue. [SUPPORT.md](SUPPORT.md) says where to ask a question.
