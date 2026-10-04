@@ -230,6 +230,26 @@
       }
     },
     {
+      "description": "Regenerate cplieger/auth's passkey provider table in the same commit as a bump of its community AAGUID list pin (the aaguids_source.go git-refs manager in customManagers). `go generate ./webauthn` runs `go run gen_aaguids.go`, which reads the new commit from the const, fetches aaguid.json at exactly that commit and rewrites webauthn/aaguids_gen.go plus its name-only snapshot webauthn/testdata/aaguid.json. Without it the PR would move the const while the table stayed stale, which auth's TestKnownAAGUIDTable_in_sync reddens on in ci / validate (the generated header names the commit). The Renovate image carries Go (docker-renovate-scheduler installs golang via install-tool as root). allowedCommands is globalOnly and lives in homelab/apps/renovate, anchored to exactly this invocation; with no allowlist entry nothing executes. fileFilters names the generator's two outputs plus the pinned file. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge, so the worst case is a red PR waiting for a human, never a silent merge. The generator refuses before writing anything when the commit is not a 40-hex hash, the fetch is not a 200, the list is empty or not a JSON object, a key is not a lowercase UUID, or a name is missing, empty, padded, unprintable or over 64 runes. AUTOMERGE: left to the routine digest automerge at the top of this file, deliberately. A list update only changes display labels that PasskeyFriendlyName suggests for new registrations (stored passkey names are never rewritten), the regenerated diff is plain text, and the commit lands as chore(deps), which auth's cliff config releases as a patch. matchDepNames keeps it a no-op for every other dep in the fleet.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "passkey-authenticator-aaguids"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "go generate ./webauthn"
+        ],
+        "fileFilters": [
+          "webauthn/aaguids_gen.go",
+          "webauthn/testdata/aaguid.json",
+          "webauthn/aaguids_source.go"
+        ],
+        "executionMode": "update"
+      }
+    },
+    {
       "description": "fclones (docker-fclones-scheduler) splits its integrity pins across the amd64 tarball sha256 and the arm64 COMMIT the version tag dereferences to. The sha256 half is handled by the repin postUpgradeTask above; the COMMIT half is not, and a stale one fail-closes the build, so this rule survives in reduced form to label the bump and embed only the command that is still manual. matchDepNames keeps it a no-op for other repos.",
       "matchManagers": [
         "custom.regex"
@@ -421,6 +441,17 @@
       ],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nARG\\s+\\w+_COMMIT=(?<currentDigest>[a-f0-9]{40})"
+      ],
+      "datasourceTemplate": "git-refs"
+    },
+    {
+      "customType": "regex",
+      "description": "Go-source commit pin for cplieger/auth's passkey provider names: a `// renovate: datasource=git-refs depName=passkey-authenticator-aaguids packageName=<repo url> branch=main` comment directly above `const aaguidListCommit = \"<40-hex>\"` in webauthn/aaguids_source.go. The same git-refs digest mode as the Dockerfile branch manager above (the branch is currentValue, the commit is currentDigest), so Renovate resolves main's head and rewrites the const, and the go generate postUpgradeTask in packageRules regenerates the table from that commit in the same commit. The upstream list (passkeydeveloper/passkey-authenticator-aaguids) publishes no tags or releases, so a commit is the only version it offers. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file; the `//` and `const` anchors keep it from ever matching the Dockerfile marker shape, and the Dockerfile manager's `#` and `ARG` anchors keep that one off this file. re2-safe.",
+      "managerFilePatterns": [
+        "/^webauthn/aaguids_source\\.go$/"
+      ],
+      "matchStrings": [
+        "//\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nconst\\s+\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{40})\""
       ],
       "datasourceTemplate": "git-refs"
     },
