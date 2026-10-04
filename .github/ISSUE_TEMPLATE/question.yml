@@ -1,34 +1,31 @@
 name: Question
-description: Ask a usage question.
+description: Ask how to do something with the project.
 labels: [question]
 body:
   - type: markdown
     attributes:
       value: |
-        Usage questions are welcome. Check the README and existing issues
-        first; if the answer is not there, ask away. For suspected defects use
-        the bug report form, and for security vulnerabilities follow the
-        security policy instead.
+        Questions are welcome. Check the README and the existing issues first. If the project does something wrong, use the bug report form instead. For a security vulnerability, follow the security policy.
   - type: textarea
     id: question
     attributes:
       label: Question
-      description: What are you trying to do, and what is unclear?
+      description: What you are trying to do, and what is unclear.
     validations:
       required: true
   - type: textarea
     id: context
     attributes:
       label: Context
-      description: Version in use, configuration, and anything already tried.
+      description: The version you use, your configuration and what you already tried. Remove passwords, tokens and other secrets first.
     validations:
       required: false
   - type: checkboxes
     id: checks
     attributes:
-      label: Before submitting
+      label: Before you submit
       options:
-        - label: I searched existing issues and this is not a duplicate.
+        - label: I searched the existing issues and this is not a duplicate.
           required: true
-        - label: I agree to follow this project's Code of Conduct.
+        - label: I agree to follow the project's Code of Conduct.
           required: true

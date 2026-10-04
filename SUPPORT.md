@@ -1,11 +1,15 @@
 # Support
 
-Need help with a `cplieger` project?
+Help for a cplieger project happens in the issues of its repository. Before you open one, read the repository's README and search its existing issues, open and closed.
 
-- **Questions / ideas**: open an issue on the affected repository using the
-  question or feature request form.
-- **Bugs**: open an issue using the bug report form.
-- **Security**: see [SECURITY.md](SECURITY.md); never file a public issue for
-  a vulnerability.
+To open an issue, go to the repository's **Issues** tab, select **New issue** and pick a form:
 
-These are personal open-source projects maintained on a best-effort basis.
+- **Question** to ask how to do something with the project.
+- **Bug report** when the project does something wrong.
+- **Feature request** to suggest a change or a new option.
+
+Report a vulnerability privately as the [security policy](SECURITY.md) describes, never in an issue.
+
+A repository can have no **Issues** tab, or be archived, which makes it read-only. To ask about one of those, open an issue on [cplieger/.github](https://github.com/cplieger/.github/issues/new/choose) and name the repository.
+
+One person maintains these projects on a best-effort basis. Questions, bugs and requests have no guaranteed response time.

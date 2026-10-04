@@ -12,17 +12,8 @@ GitHub uses a file from this repository for any cplieger repository, public or p
 - `SUPPORT.md` says where to ask a question, report a bug or report a vulnerability.
 - `.github/ISSUE_TEMPLATE/` holds the bug report, feature request and question forms. Its `config.yml` turns off blank issues and links the security policy.
 - `.github/PULL_REQUEST_TEMPLATE.md` asks for a summary, linked issues, the changes, testing and a checklist.
-- `.github/FUNDING.yml` is a placeholder with every entry commented out, so no Sponsor button appears.
 
 The forms add the `bug`, `enhancement` and `question` labels. GitHub needs a form's label to exist in the repository that uses the form. All three are among the labels GitHub creates in every new repository.
-
-## Account-wide documents GitHub does not serve
-
-`GOVERNANCE.md`, `ROADMAP.md` and `CONTINUITY.md` cover the cplieger repositories as a whole, but GitHub does not use them as defaults. All three are in this repository.
-
-- `GOVERNANCE.md` describes the single-maintainer model, how decisions are made and how a contributor can become a maintainer.
-- `ROADMAP.md` is the default roadmap for the mature projects in maintenance mode. A repository that is still evolving may keep its own `ROADMAP.md`, which takes precedence. No repository keeps one today.
-- `CONTINUITY.md` is the continuity and access-recovery plan. It states the single-maintainer risk and the steps planned to reduce it.
 
 ## What each repository keeps itself
 

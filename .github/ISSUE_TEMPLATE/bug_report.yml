@@ -1,50 +1,48 @@
 name: Bug report
-description: Report a defect.
+description: Report something the project does wrong.
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to file a bug. Please fill out the fields
-        below so the issue can be reproduced. For security vulnerabilities,
-        do not use this form; follow the security policy instead.
+        Thanks for reporting a bug. The fields below help reproduce it. Do not use this form for a security vulnerability. Report that privately as the security policy describes.
   - type: textarea
     id: what
     attributes:
-      label: What happened?
-      description: Expected vs. actual behavior.
+      label: What happened
+      description: What you expected to happen, and what happened instead.
     validations:
       required: true
   - type: textarea
     id: repro
     attributes:
       label: Steps to reproduce
-      description: Minimal reproduction (code/commands).
+      description: The smallest set of steps, commands, configuration or code that shows the problem.
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Version
-      description: Affected version, image tag, or commit, plus the runtime version where relevant.
+      description: The release, image tag or commit you use. Add the runtime version too when it matters, such as Go, Node.js or Docker.
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Paste any relevant logs. Automatically formatted as code.
+      label: Log output
+      description: Paste the relevant log lines. Remove passwords, tokens and other secrets first. The text is formatted as code.
       render: shell
     validations:
       required: false
   - type: checkboxes
     id: checks
     attributes:
-      label: Before submitting
+      label: Before you submit
       options:
-        - label: I searched existing issues and this is not a duplicate.
+        - label: I searched the existing issues and this is not a duplicate.
           required: true
-        - label: This is not a security vulnerability (those follow SECURITY.md).
+        - label: This is not a security vulnerability.
           required: true
-        - label: I agree to follow this project's Code of Conduct.
+        - label: I agree to follow the project's Code of Conduct.
           required: true
