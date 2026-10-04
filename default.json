@@ -167,6 +167,17 @@
       "enabled": false
     },
     {
+      "description": "Keep deadset-ts's SvelteKit 2 starter lane on SvelteKit 2. starters/package.json carries the aliases sv-sveltekit-2 and sveltekit-2 so the convention row for SvelteKit 2.x keeps a starter in its own range beside the SvelteKit 3 lane; a major bump would move the lane to 3.x and leave the 2.x row untested. Minor and patch updates still flow. matchDepNames matches the alias keys, which are unique fleet-wide.",
+      "matchDepNames": [
+        "sv-sveltekit-2",
+        "sveltekit-2"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Coalesce same-sweep tool-registry bumps (cplieger/tool-catalog's registries.env pins) into one PR so both registries land in a single publish run. Scoped to minor/patch: a rare registry MAJOR keeps its own PR under the manual major gate, and a digest-only bump (retag) stands alone under the no-automerge alarm below \u2014 neither may hold the other registry's flow hostage in a blocked group branch. Successor of the pre-externalization registry group removed as zero-consumer in 2026-07 \u2014 the consumer is back, now in the publisher repo instead of the app images. matchDepNames keeps it a no-op for every other repo.",
       "matchDepNames": [
         "jdx/mise",
