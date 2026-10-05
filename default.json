@@ -661,6 +661,17 @@
       "matchStrings": [
         "$each(entries, function($v, $k) { $v.upstream ? {\"depName\": $v.upstream.depName, \"currentValue\": $v.version, \"datasource\": $v.upstream.datasource, \"registryUrl\": $v.upstream.registryUrl, \"versioning\": $v.upstream.versioning} })"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Compose image lines copied into a docs/*.md page. cplieger/docs shows each examples/**/compose.yaml in full inside docs/<topic>.md, and scripts/snippets.py --check fails when the copy differs from the file. The docker-compose manager bumps only the compose file, so this manager bumps the copy in the same branch: both report the same depName and new version, so they land in one PR. The leading newline plus indentation matches only an indented `image:` line inside a fenced compose block, never a prose line, which starts with a backtick or a word. A `latest` tag is not a version and is left alone. Elsewhere it keeps a compose snippet in a docs/configuration.md page in step with that repo's compose.yaml. re2-safe.",
+      "managerFilePatterns": [
+        "/^docs/[^/]+\\.md$/"
+      ],
+      "matchStrings": [
+        "\\n\\s+image: (?<depName>[a-z0-9./_-]+):(?<currentValue>[A-Za-z0-9._-]+)\\n"
+      ],
+      "datasourceTemplate": "docker"
     }
   ],
   "dependencyDashboardLabels": [
