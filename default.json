@@ -178,6 +178,13 @@
       "enabled": false
     },
     {
+      "description": "Hold deadset-ts's Remix 2 starter generator at create-remix 2.16.x. From 2.17 create-remix prints a pointer to React Router and writes no project, so the Remix convention row's starter must come from the last release that writes one. The framework itself (@remix-run/dev) is not held: its pinned version keeps updating and the weekly latest lane installs its newest release. matchDepNames keeps it a no-op for every other repo.",
+      "matchDepNames": [
+        "create-remix"
+      ],
+      "allowedVersions": "<2.17.0"
+    },
+    {
       "description": "Coalesce same-sweep tool-registry bumps (cplieger/tool-catalog's registries.env pins) into one PR so both registries land in a single publish run. Scoped to minor/patch: a rare registry MAJOR keeps its own PR under the manual major gate, and a digest-only bump (retag) stands alone under the no-automerge alarm below \u2014 neither may hold the other registry's flow hostage in a blocked group branch. Successor of the pre-externalization registry group removed as zero-consumer in 2026-07 \u2014 the consumer is back, now in the publisher repo instead of the app images. matchDepNames keeps it a no-op for every other repo.",
       "matchDepNames": [
         "jdx/mise",
