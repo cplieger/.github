@@ -40,6 +40,18 @@
       ]
     },
     {
+      "description": "Automerge every update of cplieger/animap's anime-offline-database pin, majors included. The pin is a release tag of the form YYYY-WW, read with versioning=loose: the weekly bump (2026-40 to 2026-41) is a patch, which the routine automerge rule above already takes, and the year rollover (2026-52 to 2027-01) is a major only because the year is the first numeric segment. Without this rule that one major waits for a manual merge, every later week of the new year stays a major relative to the stale pin, and the weekly automerged commit that keeps animap's scheduled workflows alive under GitHub's 60-day rule stops until someone notices. Each bump still publishes only after the publish workflow's own coverage and collision guards pass on the new database, so the year boundary carries no more risk than any other week. Must stay AFTER the 'Major updates require manual approval' rule: a later packageRule wins. matchDepNames keeps it a no-op for every other dep in the fleet.",
+      "matchDepNames": [
+        "cedya77/anime-offline-database"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
       "description": "Skip the root-level example compose.yaml each app/image repo ships \u2014 it references the repo's own image, so updating it is churn. A packageRule (not ignorePaths) because ignorePaths is non-mergeable: overriding it here would silently drop config:recommended's node_modules/vendor/tests/examples ignore defaults for every consumer. Root-level only; nested compose files (e.g. a private deployment repo's apps/*/compose.yaml) are unaffected.",
       "matchFileNames": [
         "compose.yaml"
