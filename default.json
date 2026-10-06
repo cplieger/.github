@@ -440,6 +440,25 @@
       ]
     }
   },
+  "docker-compose": {
+    "managerFilePatterns": [
+      "/(^|/)[^/]+\\.compose\\.ya?ml$/"
+    ],
+    "description": "config:recommended's :ignoreModulesAndTests skips every package file under examples/, test(s)/ and __fixtures__/. ignorePaths is not mergeable, so a manager-level list replaces the global one for that manager only: compose files and Dockerfiles under those folders are bumped, every other manager keeps the global ignore. cplieger/docs ships its tested examples under examples/ and the images its tests boot under tests/, some in files named <part>.compose.yaml, which the default compose pattern misses; its drift check fails when a guide's copy and the example differ, and the docs/*.md custom manager below bumps the copy in the same branch. No other repo has a compose file or Dockerfile under those folders.",
+    "ignorePaths": [
+      "**/node_modules/**",
+      "**/bower_components/**",
+      "**/vendor/**"
+    ]
+  },
+  "dockerfile": {
+    "description": "config:recommended's :ignoreModulesAndTests skips every package file under examples/, test(s)/ and __fixtures__/. ignorePaths is not mergeable, so a manager-level list replaces the global one for that manager only: compose files and Dockerfiles under those folders are bumped, every other manager keeps the global ignore. cplieger/docs ships its tested examples under examples/ and the images its tests boot under tests/; its drift check fails when a guide's copy and the example differ, and the docs/*.md custom manager below bumps the copy in the same branch. No other repo has a compose file or Dockerfile under those folders.",
+    "ignorePaths": [
+      "**/node_modules/**",
+      "**/bower_components/**",
+      "**/vendor/**"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
