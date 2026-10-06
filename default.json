@@ -506,6 +506,17 @@
     },
     {
       "customType": "regex",
+      "description": "Workflow-env commit pins that track a BRANCH of a tagless git repo (`branch=` marker): a `# renovate: datasource=git-refs depName=<short> packageName=<repo url> branch=<ref>` comment followed directly by an env line `<NAME>_COMMIT: <40-hex>`. The workflow sibling of the Dockerfile `branch=` manager above, in the same git-refs digest mode (the branch is currentValue, the commit is currentDigest). Consumer: cplieger/animap's MIRROR_COMMIT in .github/workflows/publish.yaml, the notseteve/AnimeAggregations snapshot its collision check reads AniDB episode counts from; that repository publishes no tags or releases, only a dated snapshot commit on main on the 1st and 15th of each month. Mutually exclusive with the generic workflow-env manager: that one needs `\\s*\\n` right after depName (or versioning) and a *VERSION key, so the `packageName=` token and the *_COMMIT key lock it out. Digest bumps automerge under the routine-update-types rule. re2-safe. A no-op in every workflow without a `branch=` marker.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\n\\s*[A-Z_]*_COMMIT:\\s*['\"]?(?<currentDigest>[a-f0-9]{40})"
+      ],
+      "datasourceTemplate": "git-refs"
+    },
+    {
+      "customType": "regex",
       "description": "Dockerfile tag+commit pin pairs (`digest=commit` marker): a `# renovate: datasource=github-tags depName=... digest=commit` comment followed by an ARG *_REF=<tag> line and an ARG *_COMMIT=<sha> line. currentValue is the tag, currentDigest the commit it dereferences to; github-tags resolves both on every bump (annotated tags dereference to the commit oid), so the pair auto-updates with no manual step \u2014 the Dockerfile fetches BY COMMIT (codeload.github.com/<owner>/<repo>/tar.gz/<commit>), making git content addressing the integrity anchor. Use this for any codeload/repo-tarball pin: no digest datasource exists for those tarballs and their bytes are not stable enough to hash (the retired mise/aqua manual-sha-bump model learned both the hard way; those pins have since moved out of the app images entirely \u2014 cplieger/tool-catalog publishes the compiled artifact \u2014 leaving this Dockerfile shape with no current consumers, while the registries.env manager below is the same convention with a live consumer; pattern reference: ci-renovate.md). The `digest=commit` marker doubles as the mutual-exclusion token: the generic ARG manager above requires ARG immediately after depName/versioning, so it can never double-match these blocks, and this manager requires the marker so it can never match plain ARG pins. re2-safe (no lookaround).",
       "managerFilePatterns": [
         "/Dockerfile$/"
