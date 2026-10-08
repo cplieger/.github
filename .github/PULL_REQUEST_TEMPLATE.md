@@ -10,8 +10,14 @@
 
 <!-- How you checked that the change works: the commands you ran, the tests you added, what you tried by hand. -->
 
+## Release note
+
+<!-- One to three sentences on what changes for the people who use this repository. Delete this section for a change they will not notice. -->
+
 ## Checklist
 
-- [ ] The commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
+- [ ] The title follows [Conventional Commits](https://www.conventionalcommits.org/) and says what changes for the reader.
 - [ ] Tests cover the change, and the checks pass.
 - [ ] If the change alters behavior, the documentation describes the new behavior.
+
+<!-- For a breaking change, add `!` to the title and end this description with a `BREAKING CHANGE:` footer, one bullet per upgrade step. -->

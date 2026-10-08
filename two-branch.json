@@ -1,0 +1,237 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Delta preset for a repository whose default branch is dev and whose main branch is the stable line. Extend it alone: default.json already applies through inheritConfig, and extending it again would apply its rules and custom managers twice. Renovate opens every update on dev as default.json decides, and on main only the updates it would merge unattended that change what users receive, as one Saturday group plus immediate vulnerability fixes.",
+  "baseBranchPatterns": [
+    "$default",
+    "main"
+  ],
+  "vulnerabilityAlerts": {
+    "addLabels": [
+      "security",
+      "security-{{#if (and (equals updateType 'minor') (includes (toArray 'go' 'golang' 'golang-amd64' 'golang-arm64') depName))}}major{{else}}{{updateType}}{{/if}}"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "On dev, follow our own libraries' pre-releases (v1.3.0-dev.7 on the Go proxy, the npm dev dist-tag), so dev builds against the newest dev build of each first-party dependency. A stable release is cut from a commit that pins stable versions again. Images are left out: Docker versioning reads -dev.N as a compatibility suffix, never as a newer version.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchPackageNames": [
+        "@cplieger/**",
+        "github.com/cplieger/**"
+      ],
+      "ignoreUnstable": false,
+      "respectLatest": false
+    },
+    {
+      "description": "Lock file maintenance runs daily on dev, before 4am like Renovate's schedule:daily preset, so dev tests against the newest transitive versions. The schedule set here outlasts the lockFileMaintenance object's own weekly schedule, because Renovate re-applies packageRules after merging that object.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchUpdateTypes": [
+        "lockFileMaintenance"
+      ],
+      "schedule": [
+        "* 0-3 * * *"
+      ]
+    },
+    {
+      "description": "fclones' crate license tree is rewritten in the commit that moves the pin, on both branches: the arm64 build refuses a crate set that differs from licenses/crates/MANIFEST, and nothing but this commit may change that tree on main (the main intake accepts it only beside this pin's update). postUpgradeTasks is not merged across rules, so this rule replaces default.json's repin task for this one dependency and repeats its command first. Both commands must match the self-hosted Renovate's allowedCommands; a failing one records an artifactError, which holds the pull request for a human.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "pkolaczk/fclones"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "sh scripts/repin-sha.sh {{{depName}}} {{{newVersion}}}",
+          "sh scripts/vendor-crate-licenses.sh"
+        ],
+        "fileFilters": [
+          "Dockerfile",
+          "**/Dockerfile",
+          "licenses/crates/**"
+        ],
+        "executionMode": "update"
+      }
+    },
+    {
+      "description": "Majors stay on dev, including the anime-offline-database pin whose majors default.json merges unattended: the cplieger/ci intake check refuses a major on main, so it could never merge there.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Update types default.json never merges unattended (rollback, replacement, bump) stay on dev.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchUpdateTypes": [
+        "rollback",
+        "replacement",
+        "bump"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Go toolchain minors (1.27 to 1.28) stay on dev, where they wait for approval with their modernization work. Go patches reach main.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "go",
+        "golang",
+        "golang-amd64",
+        "golang-arm64"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "A tool-registry tag that moved without a version bump (the default.json retag alarm) stays on dev for review.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "jdx/mise",
+        "aquaproj/aqua-registry"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "A git-cliff release asset that changed under the same version (the default.json asset-swap alarm) stays on dev for review.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "orhun/git-cliff"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "A TypeScript nightly pin stays on dev, where default.json holds each weekly move for review.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchCurrentValue": "/-dev\\./",
+      "enabled": false
+    },
+    {
+      "description": "Base-image minors (alpine 3.24 to 3.25) stay on dev, because a minor replaces the image's package set. Base-image patches and digests reach main.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "devDependencies stay on dev: they never ship, and dev's tests cover them.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Files under example and test folders stay on dev. default.json lets Renovate bump the compose files and Dockerfiles there, but they ship nothing, and the cplieger/ci intake check on main accepts only files that ship.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchFileNames": [
+        "**/examples/**",
+        "**/__tests__/**",
+        "**/test/**",
+        "**/tests/**",
+        "**/__fixtures__/**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Workflow and composite-action pins stay on dev: they ship nothing and reach main with the next promotion. This rule covers the github-actions manager.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "github-actions"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "The same for the custom managers that read workflow and composite-action files, matched by those managers' file patterns.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        ".github/workflows/**",
+        "**/action.yml",
+        "**/action.yaml"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "The web-terminal client pair stays on dev. The two packages install only in matching pairs, and a pair update can include an engine major, which main never takes, so a member moving alone on main would break the npm lockfile.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "@cplieger/web-terminal-engine",
+        "@cplieger/web-terminal-ui"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "No lock file maintenance on main: no published artifact resolves its dependencies from a lockfile, so a lockfile-only change would ship nothing.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchUpdateTypes": [
+        "lockFileMaintenance"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Everything left on main goes into one group that opens on Saturday before 6am. It stays the last groupName rule so it replaces every other group on main. updateNotScheduled false keeps an open group from taking new updates during the week unless a rebase or a dashboard tick asks for it. Automerge is left to each update's own rules, so a hold added to default.json later keeps the group waiting instead of merging the held update. Vulnerability fixes skip the group and the schedule.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "groupName": "weekly dependencies",
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "deps",
+      "schedule": [
+        "* 0-5 * * 6"
+      ],
+      "updateNotScheduled": false,
+      "prPriority": 10
+    }
+  ]
+}
