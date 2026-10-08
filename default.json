@@ -7,6 +7,9 @@
   "labels": [
     "dependencies"
   ],
+  "reviewers": [
+    "cplieger"
+  ],
   "prFooter": "",
   "vulnerabilityAlerts": {
     "enabled": true,

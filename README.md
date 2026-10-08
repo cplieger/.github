@@ -26,12 +26,13 @@ The forms add the `bug`, `enhancement` and `question` labels. GitHub needs a for
 
 - Merges minor, patch, digest, pin and lock-file updates automatically once checks pass. Major updates and Go toolchain minor versions wait for manual approval.
 - Opens vulnerability fixes with a `security` label and never merges them automatically.
+- Requests the maintainer's review on a pull request that waits for manual approval, and on one that merges automatically only when its checks fail.
 - Groups pins that move together into one pull request, such as a Go toolchain version and its per-architecture checksums.
 - Tracks version and checksum pins that no built-in manager reads, such as those in Dockerfiles, workflow files and `go.mod`, through custom managers.
 
 `org-inherited-config.json` applies the preset to every cplieger repository. It extends `github>cplieger/.github`, which Renovate resolves to `default.json`. The self-hosted Renovate runner for the cplieger repositories reads it through Renovate's [`inheritConfig`](https://docs.renovatebot.com/self-hosted-configuration/#inheritconfig) option, so a cplieger repository needs no `renovate.json` of its own.
 
-Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories, such as the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages and the docker-caddy build stages. To leave those out, copy the general rules into your own preset.
+Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories, such as the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages and the docker-caddy build stages. To leave those out, copy the general rules into your own preset. The preset also requests reviews from `cplieger`, so set `reviewers` in your own configuration to replace that account.
 
 The reusable workflows and the lint and format configs the repositories share live in [cplieger/ci](https://github.com/cplieger/ci).
 
