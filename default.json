@@ -300,21 +300,6 @@
       }
     },
     {
-      "description": "fclones (docker-fclones-scheduler) splits its integrity pins across the amd64 tarball sha256 and the arm64 COMMIT the version tag dereferences to. The sha256 half is handled by the repin postUpgradeTask above; the COMMIT half is not, and a stale one fail-closes the build, so this rule survives in reduced form to label the bump and embed only the command that is still manual. matchDepNames keeps it a no-op for other repos.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchDepNames": [
-        "pkolaczk/fclones"
-      ],
-      "addLabels": [
-        "manual-sha-bump"
-      ],
-      "prBodyNotes": [
-        "This PR needs one manual edit. The repin postUpgradeTask recomputes `FCLONES_SHA256_AMD64`, but the arm64 build pins the commit the tag points at, and nothing here moves it. Get the commit with this command and paste it into `ARG FCLONES_COMMIT` in the Dockerfile:\n\n```sh\ngit ls-remote https://github.com/pkolaczk/fclones.git \"refs/tags/{{{newVersion}}}^{}\"\n```"
-      ]
-    },
-    {
       "description": "Group the Go toolchain version dep (golang) with its per-arch tarball sha256 deps (golang-amd64 / golang-arm64, from the custom datasources) into ONE PR so GO_VERSION and both GO_SHA256_* pins always move together and the build never lands with a stale sha. This replaced the former golang manual-sha-bump rule now that the shas auto-update (go.dev's ?mode=json publishes each tarball's sha256, so the customDatasources resolve the new digest per arch \u2014 same auto-update model as the kiro-cli pin). For repos that pin only the Go version with no sha lines (marotte / web-terminal-server), only `golang` matches, so the PR is just renamed \u2014 no behavior change.",
       "matchDepNames": [
         "go",
@@ -522,7 +507,7 @@
     },
     {
       "customType": "regex",
-      "description": "Dockerfile tag+commit pin pairs (`digest=commit` marker): a `# renovate: datasource=github-tags depName=... digest=commit` comment followed by an ARG *_REF=<tag> line and an ARG *_COMMIT=<sha> line. currentValue is the tag, currentDigest the commit it dereferences to; github-tags resolves both on every bump (annotated tags dereference to the commit oid), so the pair auto-updates with no manual step \u2014 the Dockerfile fetches BY COMMIT (codeload.github.com/<owner>/<repo>/tar.gz/<commit>), making git content addressing the integrity anchor. Use this for any codeload/repo-tarball pin: no digest datasource exists for those tarballs and their bytes are not stable enough to hash (the retired mise/aqua manual-sha-bump model learned both the hard way; those pins have since moved out of the app images entirely \u2014 cplieger/tool-catalog publishes the compiled artifact \u2014 leaving this Dockerfile shape with no current consumers, while the registries.env manager below is the same convention with a live consumer). The `digest=commit` marker doubles as the mutual-exclusion token: the generic ARG manager above requires ARG immediately after depName/versioning, so it can never double-match these blocks, and this manager requires the marker so it can never match plain ARG pins. re2-safe (no lookaround).",
+      "description": "Dockerfile tag+commit pin pairs (`digest=commit` marker): a `# renovate: datasource=github-tags depName=... digest=commit` comment followed by an ARG *_REF=<tag> line and an ARG *_COMMIT=<sha> line. currentValue is the tag, currentDigest the commit it dereferences to; github-tags resolves both on every bump (annotated tags dereference to the commit oid), so Renovate moves the tag and the commit together with no manual step. The Dockerfile then either fetches BY COMMIT (codeload.github.com/<owner>/<repo>/tar.gz/<commit>) or clones the tag and refuses to build unless the checked-out commit equals the pinned one; either way git content addressing is the integrity anchor, and a tag moved upstream fails the build. Use this for any codeload/repo-tarball pin: no digest datasource exists for those tarballs and their bytes are not stable enough to hash (the retired mise/aqua manual-sha-bump model learned both the hard way; those pins have since moved out of the app images entirely \u2014 cplieger/tool-catalog publishes the compiled artifact \u2014; docker-fclones-scheduler consumes this Dockerfile shape for fclones (tag clone, commit verified), and the registries.env manager below is the same convention for cplieger/tool-catalog). The `digest=commit` marker doubles as the mutual-exclusion token: the generic ARG manager above requires ARG immediately after depName/versioning, so it can never double-match these blocks, and this manager requires the marker so it can never match plain ARG pins. re2-safe (no lookaround).",
       "managerFilePatterns": [
         "/Dockerfile$/"
       ],
