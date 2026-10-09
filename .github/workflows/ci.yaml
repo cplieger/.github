@@ -21,4 +21,9 @@ permissions:
 
 jobs:
   ci:
+    # The meta workflow's dead-code job uploads SARIF, and a called job cannot
+    # request more than its caller grants.
+    permissions:
+      contents: read
+      security-events: write
     uses: cplieger/ci/.github/workflows/ci.yaml@a6773a5247bda97b0b845423eba560586890470d # v3
