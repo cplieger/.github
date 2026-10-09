@@ -4,7 +4,7 @@
 # check. PR-only: branch protection requires the check before merge, so a
 # post-merge re-run on main would be redundant (standard for config-only
 # repos). Hand-maintained (this repo is the sync source, not a sync target);
-# the pinned SHA is bumped by Renovate via the `# v2` comment.
+# the pinned SHA is bumped by Renovate via the `# v3` comment.
 name: CI
 
 on:
@@ -21,4 +21,4 @@ permissions:
 
 jobs:
   ci:
-    uses: cplieger/ci/.github/workflows/ci.yaml@c9c218d713f221dabb8504141b1ab4501d5ba7af # v2
+    uses: cplieger/ci/.github/workflows/ci.yaml@b5c28aa5341aa41fa0795f698bd44d0e26ff299a # v3
