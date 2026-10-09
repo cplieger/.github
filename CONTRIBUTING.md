@@ -1,10 +1,10 @@
 # Contributing
 
-These rules apply to every public cplieger repository.
+These rules cover every public cplieger repository.
 
 ## Commits and releases
 
-Each pull request is squash-merged with its title as the release-notes line. Write it in [Conventional Commits](https://www.conventionalcommits.org/) form, as the change users see: `fix: subtitles in mov_text tracks decode again`. With one commit, make the title its subject.
+Each pull request is squash-merged with its title as the release-notes line. Write it in [Conventional Commits](https://www.conventionalcommits.org/) form, as the change users see: `fix: subtitles in mov_text tracks decode again`.
 
 A change users notice gets a one-to-three-sentence `## Release note` in the description. Leave the `deps` and `devdeps` scopes to Renovate.
 
@@ -20,13 +20,13 @@ With a `cliff.toml` and default branch `main`, the commit type decides the relea
 | `chore:`, `chore(devdeps):`, `ci:`, `docs:`, `style:`, `test:`, `fuzz:`, `lint:`, `debug:`, `release:` | no release | |
 | a releasing type with `!` or a `BREAKING CHANGE:` footer | major | |
 
-A hardening fix with no new public API is `sec:`. A repository with no release starts at `v1.0.0`. Below 1.0, `feat:` raises the patch version and a breaking change the minor.
+A hardening fix with no new public API is `sec:`. Unreleased repositories start at `v1.0.0`. Below 1.0, `feat:` raises the patch version and a breaking change the minor.
 
 A breaking change carries `!` in the title and ends the description with a `BREAKING CHANGE:` footer, one bullet per upgrade step.
 
 Changes only to these files never release:
 
-- Markdown files, the root `LICENSE` and the root `.github/` folder
+- Markdown files, PNG, JPEG, WebP, GIF and SVG files in the root `docs/` folder, the root `LICENSE` and the root `.github/` folder
 - the root `alerts/` folder and the root `compose.yaml`
 - the root `tests/` folder, any `testdata/` folder, and `_test.go`, `.test.ts` and `.spec.ts` files
 - any `package-lock.json`, `.punused-ignore` or knip configuration file
@@ -36,7 +36,7 @@ Changes only to these files never release:
 
 Your pull request goes to `dev`. `main` holds the released version and takes only promotions of `dev` and automated pull requests, which release a patch when they change shipped files.
 
-A [promotion](https://github.com/cplieger/ci/blob/main/docs/workflows.md#the-two-branch-release-model) releases the next minor version, or from 1.0 the next major for a breaking change.
+A [promotion](https://github.com/cplieger/ci/blob/main/docs/workflows.md#the-two-branch-release-model) releases the next minor, or from 1.0 the next major for a breaking change.
 
 ## Synced files
 
@@ -44,7 +44,7 @@ The next sync replaces a file whose opening comment says it is synced from [cpli
 
 ## Checks
 
-Before you push, run `bash ../ci/ci-local.sh` from the repository root with [cplieger/ci](https://github.com/cplieger/ci) cloned beside it. Its `scripts/install-local-tools.sh` installs CI's tool versions. A `check(s) not validated locally` result leaves them to CI.
+Before pushing, run `bash ../ci/ci-local.sh` from the repository root with [cplieger/ci](https://github.com/cplieger/ci) cloned beside it. Its `scripts/install-local-tools.sh` installs CI's tool versions. A `check(s) not validated locally` line leaves those checks to CI.
 
 Leave the placeholder `version` in `package.json` and `jsr.json` to the release.
 
