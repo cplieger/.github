@@ -29,7 +29,7 @@ Changes only to these files never release:
 - Markdown files, PNG, JPEG, WebP, GIF and SVG files in the root `docs/` folder, the root `LICENSE` and the root `.github/` folder
 - the root `alerts/` folder and the root `compose.yaml`
 - the root `tests/` folder, any `testdata/` folder, and `_test.go`, `.test.ts` and `.spec.ts` files
-- any `package-lock.json`, `.punused-ignore` or knip configuration file
+- any `package-lock.json` or knip configuration file
 - the root `.editorconfig`, `.gitattributes`, `.gitignore` and `.dockerignore`
 
 ## Repositories whose default branch is `dev`
