@@ -150,6 +150,29 @@
       "enabled": false
     },
     {
+      "description": "On main, base images get their patches as their own update. Renovate otherwise offers only the newest non-major version, so once a minor exists the rule above disables it and the patch main should take is never offered. This rule has no matchUpdateTypes because Renovate decides the split before it knows the update type.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "separateMinorPatch": true
+    },
+    {
+      "description": "The same for the Go toolchain, whose minors the Go rule above keeps on dev.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "go",
+        "golang",
+        "golang-amd64",
+        "golang-arm64"
+      ],
+      "separateMinorPatch": true
+    },
+    {
       "description": "devDependencies stay on dev: they never ship, and dev's tests cover them.",
       "matchBaseBranches": [
         "main"
@@ -220,11 +243,14 @@
       "enabled": false
     },
     {
-      "description": "Everything left on main goes into one group that opens on Saturday before 6am. It stays the last groupName rule so it replaces every other group on main. updateNotScheduled false keeps an open group from taking new updates during the week unless a rebase or a dashboard tick asks for it. Automerge is left to each update's own rules, so a hold added to default.json later keeps the group waiting instead of merging the held update. Vulnerability fixes skip the group and the schedule.",
+      "description": "Everything left on main goes into one group that opens on Saturday before 6am. It stays the last groupName rule so it replaces every other group on main. updateNotScheduled false keeps an open group from taking new updates during the week unless a rebase or a dashboard tick asks for it. Automerge is left to each update's own rules, so a hold added to default.json later keeps the group waiting instead of merging the held update. Vulnerability fixes skip the group and the schedule. The fixed branchTopic keeps one branch, renovate/main-weekly-dependencies: a patch from a separateMinorPatch rule would otherwise go to a second branch named patch-weekly-dependencies.",
       "matchBaseBranches": [
         "main"
       ],
       "groupName": "weekly dependencies",
+      "group": {
+        "branchTopic": "weekly-dependencies"
+      },
       "semanticCommitType": "fix",
       "semanticCommitScope": "deps",
       "schedule": [
