@@ -7,7 +7,7 @@ This repository holds the default community-health files and the shared Renovate
 GitHub uses a file from this repository for any cplieger repository, public or private, that has no file of that type itself. A repository's own copy in `.github/`, its root or `docs/` takes precedence. A repository with its own `.github/ISSUE_TEMPLATE` folder gets none of the default forms. GitHub shows the defaults on its website only, and they are not part of a repository's clones, packages or downloads. The defaults work only while this repository is public.
 
 - `CODE_OF_CONDUCT.md` is adapted from the [Contributor Covenant 3.0](https://www.contributor-covenant.org/version/3/0/code_of_conduct/), which is licensed under CC BY-SA 4.0.
-- `CONTRIBUTING.md` covers pull request titles, the commit types that decide each release and the files that never release. It also covers repositories whose default branch is `dev`, the files synced from cplieger/ci, the local checks and review.
+- `CONTRIBUTING.md` covers pull request titles and, for repositories whose default branch is `dev`, which merges release, the release-notes section of each commit type, the `dev` and `main` branches and version numbers. It also covers the files synced from cplieger/ci, the local checks and review.
 - `SECURITY.md` explains how to report a vulnerability privately from a repository's Security tab and how to verify a release. The maintainer acknowledges a report within 7 days and releases a fix before public disclosure, normally within 90 days of the report.
 - `SUPPORT.md` says where to ask a question, report a bug or report a vulnerability.
 - `.github/ISSUE_TEMPLATE/` holds the bug report, feature request and question forms. Its `config.yml` turns off blank issues and links the security policy.

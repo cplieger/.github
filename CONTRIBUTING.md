@@ -2,27 +2,30 @@
 
 These rules cover every public cplieger repository.
 
-## Commits and releases
+## Commits
 
-Each pull request is squash-merged with its title as the release-notes line. Write it in [Conventional Commits](https://www.conventionalcommits.org/) form, as the change users see: `fix: subtitles in mov_text tracks decode again`.
+Each pull request is squash-merged under its title. Write it in [Conventional Commits](https://www.conventionalcommits.org/) form, as the change users see: `fix: subtitles in mov_text tracks decode again`.
 
 A change users notice gets a one-to-three-sentence `## Release note` in the description. Leave the `deps` and `devdeps` scopes to Renovate.
 
-With a `cliff.toml` and default branch `main`, the commit type decides the release:
-
-| Commit | Version | Section |
-| --- | --- | --- |
-| `feat:` | minor | Added |
-| `fix:` | patch | Fixed |
-| `sec:` | patch | Security |
-| `refactor:`, `perf:` or an unlisted type | patch | Changed |
-| `chore(deps):` | patch | Dependencies |
-| `chore:`, `chore(devdeps):`, `ci:`, `docs:`, `style:`, `test:`, `fuzz:`, `lint:`, `debug:`, `release:` | no release | |
-| a releasing type with `!` or a `BREAKING CHANGE:` footer | major | |
-
-A hardening fix with no new public API is `sec:`. Unreleased repositories start at `v1.0.0`. Below 1.0, `feat:` raises the patch version and a breaking change the minor.
+A hardening fix with no new public API is `sec:`.
 
 A breaking change carries `!` in the title and ends the description with a `BREAKING CHANGE:` footer, one bullet per upgrade step.
+
+## Repositories whose default branch is `dev`
+
+Your pull request goes to `dev`, where a releasing merge publishes a pre-release such as `v1.4.0-dev.2`.
+
+The files a merge changes decide whether it releases. Its title becomes a line in the release-notes section its commit type picks:
+
+| Commit | Section |
+| --- | --- |
+| `sec:` | Security |
+| `feat:` | Added |
+| `fix:` | Fixed |
+| `perf:` | Performance |
+| `refactor:` or an unlisted type | Changed |
+| `chore:`, `chore(deps):`, `chore(devdeps):`, `fix(deps):`, `ci:`, `docs:`, `style:`, `test:`, `fuzz:`, `lint:`, `debug:`, `release:` | no line |
 
 Changes only to these files never release:
 
@@ -32,11 +35,9 @@ Changes only to these files never release:
 - any `package-lock.json` or knip configuration file
 - the root `.editorconfig`, `.gitattributes`, `.gitignore` and `.dockerignore`
 
-## Repositories whose default branch is `dev`
+`main` holds the released version and takes only promotions of `dev` and automated pull requests. An automated pull request that changes shipped files releases the next patch.
 
-Your pull request goes to `dev`. `main` holds the released version and takes only promotions of `dev` and automated pull requests, which release a patch when they change shipped files.
-
-A [promotion](https://github.com/cplieger/ci/blob/main/docs/workflows.md#the-two-branch-release-model) releases the next minor, or from 1.0 the next major for a breaking change.
+A [promotion](https://github.com/cplieger/ci/blob/main/docs/workflows.md#the-two-branch-release-model) releases the next minor, or from 1.0 the next major when it carries a breaking change. Below 1.0 a breaking change raises the minor. An unreleased repository starts at `v1.0.0`.
 
 ## Synced files
 

@@ -155,7 +155,7 @@
       "enabled": false
     },
     {
-      "description": "devDependencies use scope 'devdeps' (commit prefix 'chore(devdeps)') so cliff can skip them \u2014 they don't ship to consumers and shouldn't trigger version bumps. Runtime/peer deps keep the default 'deps' scope which cliff treats as a release.",
+      "description": "devDependencies use scope 'devdeps' (commit prefix 'chore(devdeps)'): they never ship, so a devDependency-only change neither releases nor gets a release-notes line. Runtime and peer deps keep the default 'deps' scope.",
       "matchDepTypes": [
         "devDependencies"
       ],
