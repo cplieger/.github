@@ -7,9 +7,6 @@
   "labels": [
     "dependencies"
   ],
-  "reviewers": [
-    "cplieger"
-  ],
   "ignorePaths": [
     "**/node_modules/**",
     "**/bower_components/**",
