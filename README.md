@@ -32,7 +32,7 @@ The forms add the `bug`, `enhancement` and `question` labels. GitHub needs a for
 
 `org-inherited-config.json` applies the preset to every cplieger repository. It extends `github>cplieger/.github`, which Renovate resolves to `default.json`. The self-hosted Renovate runner for the cplieger repositories reads it through Renovate's [`inheritConfig`](https://docs.renovatebot.com/self-hosted-configuration/#inheritconfig) option, so a cplieger repository needs no `renovate.json` of its own.
 
-Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories, such as the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages and the docker-caddy build stages. To leave those out, copy the general rules into your own preset. The preset also requests reviews from `cplieger`, so set `reviewers` in your own configuration to replace that account.
+Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories, such as the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages and the docker-caddy build stages. To leave those out, copy the general rules into your own preset. The preset requests no reviewers, so set `reviewers` in your own configuration if you want Renovate to request reviews.
 
 The reusable workflows and the lint and format configs the repositories share live in [cplieger/ci](https://github.com/cplieger/ci).
 
