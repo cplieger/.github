@@ -45,7 +45,7 @@ The next sync replaces a file whose opening comment says it is synced from [cpli
 
 ## Checks
 
-Before pushing, run `bash ../ci/ci-local.sh` from the repository root with [cplieger/ci](https://github.com/cplieger/ci) cloned beside it. Its `scripts/install-local-tools.sh` installs CI's tool versions. A `check(s) not validated locally` line leaves those checks to CI.
+CI checks every pull request, and only a passing one merges. Before you push, you can run [its tools](https://github.com/cplieger/ci/blob/main/docs/workflows.md) yourself, such as `go test -race ./...`, `golangci-lint run`, `npm test` and `shellcheck`.
 
 Leave the placeholder `version` in `package.json` and `jsr.json` to the release.
 
