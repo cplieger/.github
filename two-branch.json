@@ -233,6 +233,17 @@
       "enabled": false
     },
     {
+      "description": "kiro-cli updates stay on dev, where default.json holds each one for a hand merge after its release is read. main takes the update, with any code the release needed, in the next promotion.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchDepNames": [
+        "kiro-cli",
+        "kiro-cli-arm64"
+      ],
+      "enabled": false
+    },
+    {
       "description": "No lock file maintenance on main: no published artifact resolves its dependencies from a lockfile, so a lockfile-only change would ship nothing.",
       "matchBaseBranches": [
         "main"
