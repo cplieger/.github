@@ -160,6 +160,35 @@
       "separateMinorPatch": true
     },
     {
+      "description": "renovate/renovate minors reach main, in the weekly group. Renovate patches only its newest minor and keeps no patch line for older ones, so the base-image minor rule above would hold main on one Renovate release while rebuilds move the OS packages under it, and a package update that needs a newer Renovate then breaks main's image until the next promotion. Majors stay on dev.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "renovate/renovate"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "enabled": true
+    },
+    {
+      "description": "With its minors on main, renovate/renovate takes only the newest release there: the patch split above would also offer a patch of the current minor, a second update of the same image in the weekly branch. This rule has no matchUpdateTypes for the reason the split rule gives.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "renovate/renovate"
+      ],
+      "separateMinorPatch": false
+    },
+    {
       "description": "The same for the Go toolchain, whose minors the Go rule above keeps on dev.",
       "matchBaseBranches": [
         "main"
