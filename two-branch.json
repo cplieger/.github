@@ -273,6 +273,17 @@
       "enabled": false
     },
     {
+      "description": "deadset-spec updates stay on dev. Each deadset analyzer's conformance record names the contract version it implements, so a spec update needs regenerated records that a Renovate pull request cannot produce. main takes the spec, with its records, in the next promotion.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/deadset-spec",
+        "github.com/cplieger/deadset-spec/**"
+      ],
+      "enabled": false
+    },
+    {
       "description": "No lock file maintenance on main: no published artifact resolves its dependencies from a lockfile, so a lockfile-only change would ship nothing.",
       "matchBaseBranches": [
         "main"
