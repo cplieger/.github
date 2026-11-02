@@ -364,18 +364,31 @@
       "groupName": "toolbelt"
     },
     {
-      "description": "Group the three deadset pins of cplieger/ci's deadset-ci.yaml (the deadset orchestrator and its deadset-go and deadset-ts analyzers) into ONE PR. deadset refuses an analyzer whose report schema it does not accept and the run ends with exit 3, so a contract-major release of the three only works as a set; split into three PRs, each would be red on ci's deadset-canary job until the other two landed. separateMajorMinor and separateMultipleMajor are off so a contract major of one and a minor of another still share the branch.",
+      "description": "Group the three deadset pins of cplieger/ci's deadset-ci.yaml (the deadset orchestrator and its deadset-go and deadset-ts analyzers) into ONE PR. deadset refuses an analyzer whose report schema it does not accept and the run ends with exit 3, so a contract-major release of the three only works as a set; split into three PRs, each would be red on ci's deadset-canary job until the other two landed. separateMajorMinor and separateMultipleMajor are off so a contract major of one and a minor of another still share the branch. The pins follow the products' dev prereleases (X.Y.Z-dev.N). ignoreUnstable is off because Renovate's default admits a prerelease only within the current major.minor.patch, which misses a dev build on a later version. allowedVersions admits only dev builds: semver ranks a stable X.Y.Z above every X.Y.Z-dev.N, so the first stable release would otherwise move the two Go pins off the dev line while deadset-ts stays on its dev tag, a mixed set. A move to stable takes all three pins at once and drops allowedVersions with them. respectLatest is off so a dev build newer than the registry's latest version is still taken.",
       "matchFileNames": [
         ".github/workflows/deadset-ci.yaml"
       ],
       "matchDepNames": [
-        "github.com/cplieger/deadset",
-        "github.com/cplieger/deadset-go",
+        "github.com/cplieger/deadset/v2",
+        "github.com/cplieger/deadset-go/v2",
         "@cplieger/deadset-ts"
       ],
       "groupName": "deadset analyzers",
       "separateMajorMinor": false,
-      "separateMultipleMajor": false
+      "separateMultipleMajor": false,
+      "ignoreUnstable": false,
+      "respectLatest": false,
+      "allowedVersions": "/^v?\\d+\\.\\d+\\.\\d+-dev\\.\\d+$/"
+    },
+    {
+      "description": "deadset-ts in cplieger/ci's deadset-ci.yaml follows the npm dev dist-tag, where its dev builds publish, so the pin moves to exactly the build that tag names. It is a separate rule from the deadset analyzers group above because the go datasource has no dist-tags, and Renovate proposes no update for a dep whose followTag it cannot find.",
+      "matchFileNames": [
+        ".github/workflows/deadset-ci.yaml"
+      ],
+      "matchDepNames": [
+        "@cplieger/deadset-ts"
+      ],
+      "followTag": "dev"
     },
     {
       "description": "golang docker image: wait 1 day before pinning a version bump. The official golang tag publishes its multi-arch manifest in stages, so Renovate can resolve the tag digest during the publish window while the manifest-list index is still EMPTY (0 platform manifests); that empty digest then fails every consumer's native amd64+arm64 docker build with 'no match for platform in manifest'. A 1-day stabilization delay rides out the publish race (the same failure mode a PostgreSQL pin needs guarding against). Scoped to matchDatasources=docker so it never delays the go.dev-tarball golang-version dep or the golang-amd64/golang-arm64 sha deps.",
