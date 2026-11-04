@@ -58,6 +58,33 @@
       "enabled": false
     },
     {
+      "description": "The same hold for arrapi, whose next release requires the github.com/cplieger/go paths, against its consumers still on the old paths.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchRepositories": [
+        "cplieger/seadex-scout",
+        "cplieger/subflux"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/arrapi/**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "The same hold for animap's mapread module, against seadex-scout while it is on the old paths.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchRepositories": [
+        "cplieger/seadex-scout"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/animap/mapread"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Lock file maintenance runs daily on dev, before 4am like Renovate's schedule:daily preset, so dev tests against the newest transitive versions. The schedule set here outlasts the lockFileMaintenance object's own weekly schedule, because Renovate re-applies packageRules after merging that object.",
       "matchBaseBranches": [
         "dev"
