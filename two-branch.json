@@ -43,21 +43,6 @@
       "enabled": false
     },
     {
-      "description": "The same hold for plexapi, whose next release requires the github.com/cplieger/go paths, against its consumers still on the old paths.",
-      "matchBaseBranches": [
-        "dev"
-      ],
-      "matchRepositories": [
-        "cplieger/plex-exporter",
-        "cplieger/plex-language-sync",
-        "cplieger/tautulli-remap"
-      ],
-      "matchPackageNames": [
-        "github.com/cplieger/plexapi/**"
-      ],
-      "enabled": false
-    },
-    {
       "description": "The same hold for arrapi, whose next release requires the github.com/cplieger/go paths, against its consumers still on the old paths.",
       "matchBaseBranches": [
         "dev"
