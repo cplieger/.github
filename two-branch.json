@@ -25,6 +25,22 @@
       "respectLatest": false
     },
     {
+      "description": "Hold, on dev, a first-party library's releases built on the github.com/cplieger/go module paths from each consumer still on the old library paths, so no build carries two paths of one library (an error from github.com/cplieger/go/httpclient does not match httpx's sentinels). The rule above makes dev follow first-party pre-releases even from a stable pin, so without this hold the first such release would reach these consumers within minutes. Each consumer leaves the list in the change that moves it to the new paths, which also takes the held versions; a library joins the list before its first release on the new paths. Remove the rule when the list is empty.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchRepositories": [
+        "cplieger/marotte",
+        "cplieger/web-terminal-kiro"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/web-terminal-engine/**",
+        "@cplieger/web-terminal-engine",
+        "@cplieger/web-terminal-ui"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Lock file maintenance runs daily on dev, before 4am like Renovate's schedule:daily preset, so dev tests against the newest transitive versions. The schedule set here outlasts the lockFileMaintenance object's own weekly schedule, because Renovate re-applies packageRules after merging that object.",
       "matchBaseBranches": [
         "dev"
