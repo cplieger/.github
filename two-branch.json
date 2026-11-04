@@ -30,8 +30,7 @@
         "dev"
       ],
       "matchRepositories": [
-        "cplieger/marotte",
-        "cplieger/web-terminal-kiro"
+        "cplieger/marotte"
       ],
       "matchPackageNames": [
         "github.com/cplieger/web-terminal-engine/**",
@@ -41,19 +40,6 @@
         "@cplieger/sse",
         "github.com/cplieger/toolbelt/**",
         "github.com/cplieger/pinstall/**",
-        "github.com/cplieger/forgeapi/**"
-      ],
-      "enabled": false
-    },
-    {
-      "description": "The same hold for forgeapi against forge-scout while forge-scout is on the old paths.",
-      "matchBaseBranches": [
-        "dev"
-      ],
-      "matchRepositories": [
-        "cplieger/forge-scout"
-      ],
-      "matchPackageNames": [
         "github.com/cplieger/forgeapi/**"
       ],
       "enabled": false
