@@ -33,15 +33,10 @@
         "cplieger/marotte"
       ],
       "matchPackageNames": [
-        "github.com/cplieger/web-terminal-engine/**",
         "@cplieger/web-terminal-engine",
         "@cplieger/web-terminal-ui",
         "@cplieger/keyenc",
-        "@cplieger/sse",
-        "github.com/cplieger/toolbelt/**",
-        "github.com/cplieger/pinstall/**",
-        "github.com/cplieger/forgeapi",
-        "github.com/cplieger/forgeapi/**"
+        "@cplieger/sse"
       ],
       "enabled": false
     },
