@@ -25,7 +25,7 @@
       "respectLatest": false
     },
     {
-      "description": "Hold, on dev, a first-party library's releases built on the github.com/cplieger/go module paths from each consumer still on the old library paths, so no build carries two paths of one library (an error from github.com/cplieger/go/httpclient does not match httpx's sentinels). The rule above makes dev follow first-party pre-releases even from a stable pin, so without this hold the first such release would reach these consumers within minutes. Each consumer leaves the list in the change that moves it to the new paths, which also takes the held versions; a library joins the list before its first release on the new paths. The npm halves of the base repo's hybrids (keyenc, sse) are listed too: they now publish from cplieger/go, where the old repositories have no matching tag, so a dev pin on them blocks the consumer's promotion. Remove the rule when the list is empty.",
+      "description": "Hold, on dev, a first-party library's releases built on the github.com/cplieger/go module paths from each consumer still on the old library paths, so no build carries two paths of one library (an error from github.com/cplieger/go/httpclient does not match httpx's sentinels). The rule above makes dev follow first-party pre-releases even from a stable pin, so without this hold the first such release would reach these consumers within minutes. Each consumer leaves the list in the change that moves it to the new paths, which also takes the held versions; a library joins the list before its first release on the new paths. The npm halves of the base repo's hybrids (keyenc, sse) are listed too: they now publish from cplieger/go, where the old repositories have no matching tag, so a dev pin on them blocks the consumer's promotion. A module with no major suffix is listed by its own name too, because a `/**` pattern does not match the bare path. Remove the rule when the list is empty.",
       "matchBaseBranches": [
         "dev"
       ],
@@ -40,6 +40,7 @@
         "@cplieger/sse",
         "github.com/cplieger/toolbelt/**",
         "github.com/cplieger/pinstall/**",
+        "github.com/cplieger/forgeapi",
         "github.com/cplieger/forgeapi/**"
       ],
       "enabled": false
@@ -72,7 +73,7 @@
       "enabled": false
     },
     {
-      "description": "Hold, on dev, toolbelt's releases from the two apps that pin it, each until its own move to toolbelt's pin package: from the first pin release, toolbelt's install engine refuses a tool tree an unprivileged uid can write unless TRUSTED_INSTALL_UIDS names that uid, so each app takes it in the change that sets it. The app leaves the list in that change; remove the rule when the list is empty.",
+      "description": "Hold, on dev, toolbelt's releases from the two apps that pin it, each until its own move to toolbelt's pin package: from the first pin release, toolbelt's install engine also refuses a tool tree whose owner or ACL lets another uid write it, so each app takes that check in the change that moves it. The app leaves the list in that change; remove the rule when the list is empty.",
       "matchBaseBranches": [
         "dev"
       ],
