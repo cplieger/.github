@@ -72,6 +72,20 @@
       "enabled": false
     },
     {
+      "description": "Hold, on dev, toolbelt's releases from the two apps that pin it, each until its own move to toolbelt's pin package: from the first pin release, toolbelt's install engine refuses a tool tree an unprivileged uid can write unless TRUSTED_INSTALL_UIDS names that uid, so each app takes it in the change that sets it. The app leaves the list in that change; remove the rule when the list is empty.",
+      "matchBaseBranches": [
+        "dev"
+      ],
+      "matchRepositories": [
+        "cplieger/marotte",
+        "cplieger/web-terminal-kiro"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/toolbelt/**"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Lock file maintenance runs daily on dev, before 4am like Renovate's schedule:daily preset, so dev tests against the newest transitive versions. The schedule set here outlasts the lockFileMaintenance object's own weekly schedule, because Renovate re-applies packageRules after merging that object.",
       "matchBaseBranches": [
         "dev"
