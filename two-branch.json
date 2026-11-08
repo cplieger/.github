@@ -300,6 +300,24 @@
       "enabled": false
     },
     {
+      "description": "Renovate leaves deadset's first-party pins alone in the three deadset repositories, because the release rounds move them through the fleet gate. A merged pin bump would cut a dev tag that cplieger/ci carries into every repository's dead-code check without that gate. Other dependencies of these repositories, such as github.com/cplieger/go/filesafe, stay on Renovate.",
+      "matchRepositories": [
+        "cplieger/deadset",
+        "cplieger/deadset-go",
+        "cplieger/deadset-ts"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/deadset-spec",
+        "github.com/cplieger/deadset-spec/**",
+        "github.com/cplieger/deadset-go",
+        "github.com/cplieger/deadset-go/**",
+        "github.com/cplieger/deadset",
+        "github.com/cplieger/deadset/**",
+        "@cplieger/deadset-*"
+      ],
+      "enabled": false
+    },
+    {
       "description": "No lock file maintenance on main: no published artifact resolves its dependencies from a lockfile, so a lockfile-only change would ship nothing.",
       "matchBaseBranches": [
         "main"
