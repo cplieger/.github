@@ -310,6 +310,33 @@
       }
     },
     {
+      "description": "subflux's release-name patterns: one monthly PR for the three upstream commit pins in internal/release/patterns_source.go (TRaSH-Guides, Sonarr and Radarr), which the release-patterns git-refs manager in customManagers reads. `go generate ./internal/release` runs cmd/release-patterns generate, which fetches every patterns.manifest.json entry at the new commits and rewrites patterns_gen.go and its testdata snapshots, then re-records the golden labels; it writes nothing when any check fails. Without it the PR would move the pins while patterns_gen.go stayed stale. The command is allowed in the homelab Renovate's global allowedCommands (`^go generate \\./internal/release$`). Grouped and monthly because the three pins describe one import and a parser change is reviewed as one diff. AUTOMERGE: off, because a pattern change can change how subflux reads a release name. A failing command records an artifactError, which forces a PR with an artifact-problem section, never a silent merge. matchDepNames keeps it a no-op for every other dep in the cplieger repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "trash-guides",
+        "sonarr-parser",
+        "radarr-parser"
+      ],
+      "groupName": "release-patterns",
+      "schedule": [
+        "* 0-5 1 * *"
+      ],
+      "automerge": false,
+      "postUpgradeTasks": {
+        "commands": [
+          "go generate ./internal/release"
+        ],
+        "fileFilters": [
+          "internal/release/patterns_source.go",
+          "internal/release/patterns_gen.go",
+          "internal/release/testdata/**"
+        ],
+        "executionMode": "branch"
+      }
+    },
+    {
       "description": "Group the Go toolchain version dep (golang) with its per-arch tarball sha256 deps (golang-amd64 / golang-arm64, from the custom datasources) into ONE PR so GO_VERSION and both GO_SHA256_* pins always move together and the build never lands with a stale sha. This replaced the former golang manual-sha-bump rule now that the shas auto-update (go.dev's ?mode=json publishes each tarball's sha256, so the customDatasources resolve the new digest per arch \u2014 same auto-update model as the kiro-cli pin). For repos that pin only the Go version with no sha lines (marotte / web-terminal-server), only `golang` matches, so the PR is just renamed \u2014 no behavior change.",
       "matchDepNames": [
         "go",
@@ -540,6 +567,17 @@
       "description": "Go-source commit pin for cplieger/auth's passkey provider names: a `// renovate: datasource=git-refs depName=passkey-authenticator-aaguids packageName=<repo url> branch=main` comment directly above `const aaguidListCommit = \"<40-hex>\"` in webauthn/aaguids_source.go. The same git-refs digest mode as the Dockerfile branch manager above (the branch is currentValue, the commit is currentDigest), so Renovate resolves main's head and rewrites the const, and the go generate postUpgradeTask in packageRules regenerates the table from that commit in the same commit. The upstream list (passkeydeveloper/passkey-authenticator-aaguids) publishes no tags or releases, so a commit is the only version it offers. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file; the `//` and `const` anchors keep it from ever matching the Dockerfile marker shape, and the Dockerfile manager's `#` and `ARG` anchors keep that one off this file. re2-safe.",
       "managerFilePatterns": [
         "/^webauthn/aaguids_source\\.go$/"
+      ],
+      "matchStrings": [
+        "//\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nconst\\s+\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{40})\""
+      ],
+      "datasourceTemplate": "git-refs"
+    },
+    {
+      "customType": "regex",
+      "description": "Go-source commit pins for subflux's release-name patterns: each `// renovate: datasource=git-refs depName=<trash-guides|sonarr-parser|radarr-parser> packageName=<repo url> branch=<branch>` comment directly above `const <name>Commit = \"<40-hex>\"` in internal/release/patterns_source.go, the same shape and git-refs digest mode as the aaguids_source.go manager above (the branch is currentValue, the commit is currentDigest). The upstreams track branches, not tags, so a commit is the version. The release-patterns packageRule groups them monthly and regenerates patterns_gen.go in the same commit. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file. re2-safe.",
+      "managerFilePatterns": [
+        "/^internal/release/patterns_source\\.go$/"
       ],
       "matchStrings": [
         "//\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nconst\\s+\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{40})\""
