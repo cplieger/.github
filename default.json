@@ -543,6 +543,18 @@
     },
     {
       "customType": "regex",
+      "description": "Keep a README's stated Go floor (\"needs Go 1.27.4 or later\") on the version the go.mod directive manager above moves. Both deps are named go, so the 'golang toolchain' group lands the README line in the same PR as the go.mod bump. Without it every bump left the README naming the old patch: cplieger/go's 20 module READMEs still said 1.27.3 after go.mod required 1.27.4.",
+      "managerFilePatterns": [
+        "/(^|/)README\\.md$/"
+      ],
+      "matchStrings": [
+        "Go (?<currentValue>\\d+\\.\\d+\\.\\d+) or later"
+      ],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go"
+    },
+    {
+      "customType": "regex",
       "description": "Dockerfile ARG versions with renovate comments",
       "managerFilePatterns": [
         "/Dockerfile$/"
