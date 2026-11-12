@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Delta preset for a repository whose default branch is dev and whose main branch is the stable line. Extend it alone: default.json already applies through inheritConfig, and extending it again would apply its rules and custom managers twice. Renovate opens every update on dev as default.json decides, and on main only the updates it would merge unattended that change what users receive, as one Saturday group plus immediate vulnerability fixes.",
+  "description": "Delta preset for a repository whose default branch is dev and whose main branch is the stable line. Extend it alone: default.json already applies through inheritConfig, and extending it again would apply its rules and custom managers twice. Renovate opens every update on dev as default.json decides. On main it opens only the updates it would merge unattended that change what users receive. They go in one Saturday group, except vulnerability fixes and ghcr.io/actions/actions-runner base-image updates, which open at once.",
   "baseBranchPatterns": [
     "$default",
     "main"
@@ -218,6 +218,22 @@
       "separateMinorPatch": true
     },
     {
+      "description": "ghcr.io/actions/actions-runner minors reach main. GitHub publishes most runner releases as a new minor, such as 2.337.0 to 2.338.0. It stops sending jobs to a self-hosted runner that has not taken a release within 30 days, and a minor counts as a release. The base-image minor rule above would otherwise hold main's runner until the next promotion. The runner rule after the weekly group takes these updates out of the group. Majors stay on dev.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "ghcr.io/actions/actions-runner"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "enabled": true
+    },
+    {
       "description": "devDependencies stay on dev: they never ship, and dev's tests cover them.",
       "matchBaseBranches": [
         "main"
@@ -328,7 +344,7 @@
       "enabled": false
     },
     {
-      "description": "Everything left on main goes into one group that opens on Saturday before 6am. It stays the last groupName rule so it replaces every other group on main. updateNotScheduled false keeps an open group from taking new updates during the week unless a rebase or a dashboard tick asks for it. Automerge is left to each update's own rules, so a hold added to default.json later keeps the group waiting instead of merging the held update. Vulnerability fixes skip the group and the schedule. The fixed branchTopic keeps one branch, renovate/main-weekly-dependencies: a patch from a separateMinorPatch rule would otherwise go to a second branch named patch-weekly-dependencies.",
+      "description": "Everything left on main goes into one group that opens on Saturday before 6am. Every other rule that sets a group comes before it, so this group replaces them on main. Only the ghcr.io/actions/actions-runner rule after it takes updates out of the group. updateNotScheduled false keeps an open group from taking new updates during the week unless a rebase or a dashboard tick asks for it. Automerge is left to each update's own rules, so a hold added to default.json later keeps the group waiting instead of merging the held update. Vulnerability fixes skip the group and the schedule. The fixed branchTopic keeps one branch, renovate/main-weekly-dependencies: a patch from a separateMinorPatch rule would otherwise go to a second branch named patch-weekly-dependencies.",
       "matchBaseBranches": [
         "main"
       ],
@@ -343,6 +359,24 @@
       ],
       "updateNotScheduled": false,
       "prPriority": 10
+    },
+    {
+      "description": "On main, ghcr.io/actions/actions-runner updates skip the weekly group and its Saturday schedule, and no release-age wait applies to them. Each one opens as soon as it is released, and its merge releases main the same day. GitHub pauses jobs to older runners as soon as it publishes a critical security release of the runner. Waiting for Saturday could then stop every runner built from main's image for days. groupName null takes the update out of the group, because Renovate groups only by a non-null groupName. The rule must come after the group rule to win. separateMinorPatch false offers only the newest release, as the renovate/renovate rule above does. A patch of the current minor then never opens a second pull request beside a newer minor. This rule has no matchUpdateTypes for the reason the base-image patch split rule gives. It changes no hold above, so majors stay on dev, and automerge is left to each update's own rules.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "ghcr.io/actions/actions-runner"
+      ],
+      "groupName": null,
+      "schedule": [
+        "at any time"
+      ],
+      "minimumReleaseAge": "0 days",
+      "separateMinorPatch": false
     }
   ]
 }

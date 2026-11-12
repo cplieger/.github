@@ -117,6 +117,16 @@
       "enabled": false
     },
     {
+      "description": "Renovate leaves the runner images that cplieger repositories build alone in Dockerfiles. A repository that releases runner images builds each one from images/<name>/Dockerfile and publishes it as ghcr.io/cplieger/<repository>-runner:<name>. An image built on another names that image by its moving tag, such as ghcr.io/cplieger/manade-runner:base-dev. The release workflow in cplieger/ci builds that image in the same run and uses the build in place of the tag. It refuses a reference that carries a digest. Without this rule, Renovate opens a pull request that pins a digest on the tag, as config:best-practices asks. The pull-request checks from cplieger/ci refuse that digest too, so the pull request fails and waits for a person. Renovate keeps updating it each time the -dev tag moves, and merging it by hand makes the release fail. The pattern matches every cplieger image whose name ends in -runner, and its `*` does not match a `/`. It also matches these images in another repository's Dockerfile, so Renovate leaves such a line as written too. Only the dockerfile manager is matched, so a compose file that runs one of these images keeps its updates.",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchDepNames": [
+        "ghcr.io/cplieger/*-runner"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Group Go dependency updates. gomodUpdateImportPaths rewrites the /vN import path in .go source on a major bump (Go semantic import versioning: v2+ changes the module path, so source imports must change too). Without it Renovate edits only go.mod/go.sum and the PR lands non-compiling \u2014 e.g. github-scout#9, where the atomicfile v1->v2 bump left a stale v1 import plus a duplicate require. It is a built-in postUpdateOption (no allowedCommands allowlist needed), uses marwan-at-work/mod, handles standard github.com/* paths (not gopkg.in), and shells out to the go toolchain \u2014 which our self-hosted bot (binarySource=install under the default UID 12021:0) installs on demand. gomodTidy then reconciles go.sum. It does NOT fix genuine API breaks (renamed funcs, changed return signatures \u2014 e.g. atomicfile v2's WriteFile now returns (Result, error)); those still need a manual follow-up, but with imports correct, downstream CI flags only the real breakage instead of a phantom import error. Deliberately NOT paired with a postUpgradeTasks `go build` gate: that would require widening the global RENOVATE_ALLOWED_COMMANDS (a security surface) across every cplieger/* repo for only a marginal fail-fast gain, since each repo's own CI already rejects a non-compiling PR (that is how #9 surfaced).",
       "matchManagers": [
         "gomod"

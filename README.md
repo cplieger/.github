@@ -26,13 +26,12 @@ The forms add the `bug`, `enhancement` and `question` labels. GitHub needs a for
 
 - Merges minor, patch, digest, pin and lock-file updates automatically once checks pass. Major updates and Go toolchain minor versions wait for manual approval.
 - Opens vulnerability fixes with a `security` label and never merges them automatically.
-- Requests the maintainer's review on a pull request that waits for manual approval, and on one that merges automatically only when its checks fail.
 - Groups pins that move together into one pull request, such as a Go toolchain version and its per-architecture checksums.
 - Tracks version and checksum pins that no built-in manager reads, such as those in Dockerfiles, workflow files and `go.mod`, through custom managers.
 
 `org-inherited-config.json` applies the preset to every cplieger repository. It extends `github>cplieger/.github`, which Renovate resolves to `default.json`. The self-hosted Renovate runner for the cplieger repositories reads it through Renovate's [`inheritConfig`](https://docs.renovatebot.com/self-hosted-configuration/#inheritconfig) option, so a cplieger repository needs no `renovate.json` of its own.
 
-Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories, such as the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages and the docker-caddy build stages. To leave those out, copy the general rules into your own preset. The preset requests no reviewers, so set `reviewers` in your own configuration if you want Renovate to request reviews.
+Another account can extend `github>cplieger/.github` too. The preset's rules also cover cplieger's own packages and repositories. Among them are the `@cplieger/web-terminal-engine` and `@cplieger/web-terminal-ui` npm packages, the docker-caddy build stages and the `ghcr.io/cplieger/*-runner` images, which Renovate leaves alone in Dockerfiles. To leave the cplieger-specific rules out, copy the general rules into your own preset. The preset requests no reviewers, so set `reviewers` in your own configuration if you want Renovate to request reviews.
 
 The reusable workflows and the lint and format configs the repositories share live in [cplieger/ci](https://github.com/cplieger/ci).
 
@@ -42,6 +41,7 @@ The reusable workflows and the lint and format configs the repositories share li
 
 - On `dev`, every update `default.json` allows. Most open as soon as they are released. An npm package waits three days first, the `golang` image one day and `docker/buildx` three days. Vulnerability fixes and cplieger's own packages never wait, and pre-releases of those packages are accepted there. Lock-file maintenance runs daily.
 - On `main`, only the updates Renovate merges automatically and that change what users receive, in one pull request each Saturday. Major updates, Go toolchain and base-image minor versions, `devDependencies`, files under example and test folders, workflow pins and lock-file maintenance stay on `dev`. Minor versions of the `renovate/renovate` base image still reach `main`.
+- On `main`, updates of the `ghcr.io/actions/actions-runner` base image, minor versions included, skip the Saturday pull request and open as soon as they are released. GitHub stops sending jobs to a self-hosted runner that has not taken a new runner release within 30 days. After a critical security release, it pauses jobs to older runners at once.
 - Vulnerability fixes open on both branches at once. Besides `security`, each one gets a label naming its update type, such as `security-patch`. A Go toolchain minor version gets `security-major`.
 - On both branches, an fclones update also rewrites the crate license files under `licenses/crates/` in the same commit, so the image build accepts it without a manual step.
 
