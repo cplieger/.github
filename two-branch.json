@@ -316,6 +316,21 @@
       "enabled": false
     },
     {
+      "description": "subflux's release-name pattern updates stay on dev. default.json groups them monthly with automerge off, because a pattern change can change how subflux reads a release name, so they wait for a person. On main the weekly group replaces their group, and an update that waits for a person would keep the whole Saturday group waiting. main takes them with the next promotion.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "trash-guides",
+        "sonarr-parser",
+        "radarr-parser"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Renovate leaves deadset's first-party pins alone in the three deadset repositories, because the release rounds move them through the fleet gate. A merged pin bump would cut a dev tag that cplieger/ci carries into every repository's dead-code check without that gate. Other dependencies of these repositories, such as github.com/cplieger/go/filesafe, stay on Renovate.",
       "matchRepositories": [
         "cplieger/deadset",
