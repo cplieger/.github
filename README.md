@@ -45,4 +45,4 @@ The reusable workflows and the lint and format configs the repositories share li
 - Vulnerability fixes open on both branches at once. Besides `security`, each one gets a label naming its update type, such as `security-patch`. A Go toolchain minor version gets `security-major`.
 - On both branches, an fclones update also rewrites the crate license files under `licenses/crates/` in the same commit, so the image build accepts it without a manual step.
 
-This project was built with AI-assisted tooling using [Claude](https://claude.com), [GPT](https://openai.com), and [Kiro](https://kiro.dev). The human maintainer defines architecture, supervises implementation, and makes all final decisions.
+This project was built with AI assistance. The human maintainer defines architecture, supervises implementation, and makes all final decisions.
