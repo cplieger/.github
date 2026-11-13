@@ -331,6 +331,19 @@
       "enabled": false
     },
     {
+      "description": "access's SecLists blocklist updates stay on dev. default.json refreshes the pin monthly and regenerates the list in the same commit. On main the weekly group replaces that schedule, so every SecLists commit would move main's pin each Saturday. main takes the regenerated list with the next promotion.",
+      "matchBaseBranches": [
+        "main"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "seclists"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Renovate leaves deadset's first-party pins alone in the three deadset repositories, because the release rounds move them through the fleet gate. A merged pin bump would cut a dev tag that cplieger/ci carries into every repository's dead-code check without that gate. Other dependencies of these repositories, such as github.com/cplieger/go/filesafe, stay on Renovate.",
       "matchRepositories": [
         "cplieger/deadset",
