@@ -300,7 +300,7 @@
       }
     },
     {
-      "description": "Regenerate cplieger/auth's passkey provider table in the same commit as a bump of its community AAGUID list pin (the aaguids_source.go git-refs manager in customManagers). `go generate ./webauthn` runs `go run gen_aaguids.go`, which reads the new commit from the const, fetches aaguid.json at exactly that commit and rewrites webauthn/aaguids_gen.go plus its name-only snapshot webauthn/testdata/aaguid.json. Without it the PR would move the const while the table stayed stale, which auth's TestKnownAAGUIDTable_in_sync reddens on in ci / validate (the generated header names the commit). The Renovate image carries Go (docker-renovate-scheduler installs golang via install-tool as root). allowedCommands is globalOnly and lives in the self-hosted Renovate's global config, anchored to exactly this invocation; with no allowlist entry nothing executes. fileFilters names the generator's two outputs plus the pinned file. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge, so the worst case is a red PR waiting for a human, never a silent merge. The generator refuses before writing anything when the commit is not a 40-hex hash, the fetch is not a 200, the list is empty or not a JSON object, a key is not a lowercase UUID, or a name is missing, empty, padded, unprintable or over 64 runes. AUTOMERGE: left to the routine digest automerge at the top of this file, deliberately. A list update only changes display labels that PasskeyFriendlyName suggests for new registrations (stored passkey names are never rewritten), the regenerated diff is plain text, and the commit lands as chore(deps), which auth's cliff config releases as a patch. matchDepNames keeps it a no-op for every other dep in the cplieger repos.",
+      "description": "Regenerate cplieger/access's passkey provider table in the same commit as a bump of its community AAGUID list pin (the aaguids_source.go git-refs manager in customManagers). `go generate ./webauthn` runs `go run gen_aaguids.go`, which reads the new commit from the const, fetches aaguid.json at exactly that commit and rewrites webauthn/aaguids_gen.go plus its name-only snapshot webauthn/testdata/aaguid.json. Without it the PR would move the const while the table stayed stale, which access's TestKnownAAGUIDTable_in_sync reddens on in ci / validate (the generated header names the commit). The Renovate image carries Go (docker-renovate-scheduler installs golang via install-tool as root). allowedCommands is globalOnly and lives in the self-hosted Renovate's global config, anchored to exactly this invocation; with no allowlist entry nothing executes. fileFilters names the generator's two outputs plus the pinned file. FAILURE POSTURE: a failing command does not abort the branch, it records an artifactError, which forces a PR, prints an artifact-problem section in the PR body and skips branch-automerge, so the worst case is a red PR waiting for a human, never a silent merge. The generator refuses before writing anything when the commit is not a 40-hex hash, the fetch is not a 200, the list is empty or not a JSON object, a key is not a lowercase UUID, or a name is missing, empty, padded, unprintable or over 64 runes. AUTOMERGE: left to the routine digest automerge at the top of this file, deliberately. A list update only changes display labels that PasskeyFriendlyName suggests for new registrations (stored passkey names are never rewritten), the regenerated diff is plain text, and the commit lands as chore(deps), which access's cliff config releases as a patch. matchDepNames keeps it a no-op for every other dep in the cplieger repos.",
       "matchManagers": [
         "custom.regex"
       ],
@@ -344,6 +344,28 @@
           "internal/release/testdata/**"
         ],
         "executionMode": "branch"
+      }
+    },
+    {
+      "description": "Regenerate cplieger/access's common-password blocklist in the same commit as a bump of its SecLists pin (the blocklist source.go git-refs manager in customManagers). `go generate ./internal/blocklist` runs internal/cmd/genblocklist, which reads the new commit from blocklist.SeclistsCommit, fetches the SecLists password lists at exactly that commit and replaces internal/blocklist/common.txt, whose header names the commit; it writes nothing when a fetch fails, a body is over its cap or the list keeps too few entries. Without it the PR would move the const while common.txt stayed stale, which access's TestBlocklistInSync reddens on in ci / validate. The command is allowed in the homelab Renovate's global allowedCommands (`^go generate \\./internal/blocklist$`). Monthly, because every SecLists commit moves the pin while the password lists rarely change, and each merge into access dev cuts a dev release. AUTOMERGE: left to the routine digest automerge at the top of this file, as for the passkey table: a new list only changes which passwords are refused when a user next sets one (stored hashes are never re-checked), and TestBlocklistInSync and TestBlocklistSize gate the regenerated file. A failing command records an artifactError, which forces a PR with an artifact-problem section and skips branch-automerge, never a silent merge. matchDepNames keeps it a no-op for every other dep in the cplieger repos.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "seclists"
+      ],
+      "schedule": [
+        "* 0-5 1 * *"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "go generate ./internal/blocklist"
+        ],
+        "fileFilters": [
+          "internal/blocklist/common.txt",
+          "internal/blocklist/source.go"
+        ],
+        "executionMode": "update"
       }
     },
     {
@@ -574,7 +596,7 @@
     },
     {
       "customType": "regex",
-      "description": "Go-source commit pin for cplieger/auth's passkey provider names: a `// renovate: datasource=git-refs depName=passkey-authenticator-aaguids packageName=<repo url> branch=main` comment directly above `const aaguidListCommit = \"<40-hex>\"` in webauthn/aaguids_source.go. The same git-refs digest mode as the Dockerfile branch manager above (the branch is currentValue, the commit is currentDigest), so Renovate resolves main's head and rewrites the const, and the go generate postUpgradeTask in packageRules regenerates the table from that commit in the same commit. The upstream list (passkeydeveloper/passkey-authenticator-aaguids) publishes no tags or releases, so a commit is the only version it offers. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file; the `//` and `const` anchors keep it from ever matching the Dockerfile marker shape, and the Dockerfile manager's `#` and `ARG` anchors keep that one off this file. re2-safe.",
+      "description": "Go-source commit pin for cplieger/access's passkey provider names: a `// renovate: datasource=git-refs depName=passkey-authenticator-aaguids packageName=<repo url> branch=main` comment directly above `const aaguidListCommit = \"<40-hex>\"` in webauthn/aaguids_source.go. The same git-refs digest mode as the Dockerfile branch manager above (the branch is currentValue, the commit is currentDigest), so Renovate resolves main's head and rewrites the const, and the go generate postUpgradeTask in packageRules regenerates the table from that commit in the same commit. The upstream list (passkeydeveloper/passkey-authenticator-aaguids) publishes no tags or releases, so a commit is the only version it offers. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file; the `//` and `const` anchors keep it from ever matching the Dockerfile marker shape, and the Dockerfile manager's `#` and `ARG` anchors keep that one off this file. re2-safe.",
       "managerFilePatterns": [
         "/^webauthn/aaguids_source\\.go$/"
       ],
@@ -588,6 +610,17 @@
       "description": "Go-source commit pins for subflux's release-name patterns: each `// renovate: datasource=git-refs depName=<trash-guides|sonarr-parser|radarr-parser> packageName=<repo url> branch=<branch>` comment directly above `const <name>Commit = \"<40-hex>\"` in internal/release/patterns_source.go, the same shape and git-refs digest mode as the aaguids_source.go manager above (the branch is currentValue, the commit is currentDigest). The upstreams track branches, not tags, so a commit is the version. The release-patterns packageRule groups them monthly and regenerates patterns_gen.go in the same commit. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file. re2-safe.",
       "managerFilePatterns": [
         "/^internal/release/patterns_source\\.go$/"
+      ],
+      "matchStrings": [
+        "//\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nconst\\s+\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{40})\""
+      ],
+      "datasourceTemplate": "git-refs"
+    },
+    {
+      "customType": "regex",
+      "description": "Go-source commit pin for cplieger/access's common-password blocklist: a `// renovate: datasource=git-refs depName=seclists packageName=https://github.com/danielmiessler/SecLists branch=master` comment directly above `const SeclistsCommit = \"<40-hex>\"` in internal/blocklist/source.go, the same shape and git-refs digest mode as the aaguids_source.go manager above (the branch is currentValue, the commit is currentDigest), so Renovate resolves master's head and rewrites the const, and the go generate postUpgradeTask in packageRules regenerates common.txt from that commit in the same commit. SecLists publishes no release that pins the password lists, so a commit is the version. managerFilePatterns names the one file, so this is a no-op in every other repo and every other file. re2-safe.",
+      "managerFilePatterns": [
+        "/^internal/blocklist/source\\.go$/"
       ],
       "matchStrings": [
         "//\\s*renovate:\\s*datasource=git-refs\\s+depName=(?<depName>\\S+)\\s+packageName=(?<packageName>\\S+)\\s+branch=(?<currentValue>\\S+)\\s*\\nconst\\s+\\w+\\s*=\\s*\"(?<currentDigest>[a-f0-9]{40})\""
