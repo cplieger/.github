@@ -837,7 +837,9 @@
       "datasourceTemplate": "docker"
     }
   ],
-  "dependencyDashboardLabels": [
-    "renovate"
-  ]
+  "dependencyDashboard": {
+    "labels": [
+      "renovate"
+    ]
+  }
 }
