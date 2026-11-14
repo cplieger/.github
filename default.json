@@ -200,6 +200,16 @@
       "separateMultipleMajor": false
     },
     {
+      "description": "Group stylelint and stylelint-config-standard into one branch across every update type. Each config-standard major requires the matching stylelint major as a peer (41 needs 18, 40 needs 17), so either bump alone fails npm's lockfile refresh and its PR is born red. separateMajorMinor false keeps a stylelint major with its config's major.",
+      "matchDepNames": [
+        "stylelint",
+        "stylelint-config-standard"
+      ],
+      "groupName": "stylelint pair",
+      "separateMajorMinor": false,
+      "separateMultipleMajor": false
+    },
+    {
       "description": "Group docker-caddy's two upstream Caddy stages (FROM caddy:<line>-builder and FROM caddy:<line>) into ONE branch across all update types. The Dockerfile's donor-contract stage fails the build unless the xcaddy-built binary and the runtime donor report the same Caddy version, so the two digests are only buildable in matching pairs: split, each PR is born red with 'custom binary is vX but the runtime donor is vY' and neither can merge first. Docker versioning treats -builder as a compatibility suffix, which is why Renovate splits them by default. matchManagers dockerfile keeps it off any compose.yaml or other caddy reference; only docker-caddy's Dockerfile pulls caddy as a FROM.",
       "matchManagers": [
         "dockerfile"
