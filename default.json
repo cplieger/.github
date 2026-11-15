@@ -494,9 +494,10 @@
       "automerge": false
     },
     {
-      "description": "git-cliff digest-ONLY updates (same version, different tarball sha) must never auto-merge: an asset whose digest changes without a version bump is exactly the release-asset-replacement event the pinned sha exists to catch \u2014 auto-merging it would ratify the swap unreviewed. Version bumps (which carry their new digest in the same PR) keep the normal minor/patch auto-merge; only the bare digest change is gated. Placed last so automerge=false wins the rule merge.",
+      "description": "Release-asset digest-ONLY updates of the version+sha256 pins (git-cliff's tarball, cosign's cosign-linux-amd64; same version, different sha) must never auto-merge: an asset whose digest changes without a version bump is exactly the release-asset-replacement event the pinned sha exists to catch \u2014 auto-merging it would ratify the swap unreviewed. Version bumps (which carry their new digest in the same PR) keep the normal minor/patch auto-merge; only the bare digest change is gated. Placed last so automerge=false wins the rule merge.",
       "matchDepNames": [
-        "orhun/git-cliff"
+        "orhun/git-cliff",
+        "sigstore/cosign"
       ],
       "matchUpdateTypes": [
         "digest"
@@ -506,7 +507,7 @@
         "security"
       ],
       "prBodyNotes": [
-        ":rotating_light: **Upstream release asset changed WITHOUT a version bump.** The pinned git-cliff tarball's sha256 no longer matches the published asset for the same tag. A silently replaced release asset is a supply-chain red flag: verify upstream's changelog and announcements before merging."
+        ":rotating_light: **Upstream release asset changed WITHOUT a version bump.** The pinned release asset's sha256 no longer matches the published asset for the same tag. A silently replaced release asset is a supply-chain red flag: verify upstream's changelog and announcements before merging."
       ]
     }
   ],
@@ -516,6 +517,13 @@
       "format": "json",
       "transformTemplates": [
         "{ \"releases\": [$[prerelease = false and draft = false].($tag := tag_name; $t := assets[digest != null and name = \"git-cliff-\" & $substring($tag, 1) & \"-x86_64-unknown-linux-gnu.tar.gz\"]; $count($t) = 1 ? { \"version\": $tag, \"digest\": $substringAfter($t.digest, \"sha256:\") })] }"
+      ]
+    },
+    "cosign": {
+      "defaultRegistryUrlTemplate": "https://api.github.com/repos/sigstore/cosign/releases?per_page=100",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": [$[prerelease = false and draft = false].($t := assets[digest != null and name = \"cosign-linux-amd64\"]; $count($t) = 1 ? { \"version\": tag_name, \"digest\": $substringAfter($t.digest, \"sha256:\") })] }"
       ]
     },
     "kiro-cli": {
@@ -718,6 +726,17 @@
       ],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.git-cliff)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*CLIFF_VERSION[=:]\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s*\\n\\s*CLIFF_SHA256[=:]\\s*['\"]?(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "cosign version + cosign-linux-amd64 sha256 pinned as a pair in the cplieger/ci workflows whose jobs may run on a self-hosted pool runner (security-scan.yaml, perf-ci.yaml). Those jobs download the binary and check it with sha256sum -c instead of running sigstore/cosign-installer, whose script needs envsubst, which a runner built from GitHub's runner container image lacks. Pairs with the cosign customDatasource above, which maps each GitHub release to {version, digest} by the exact cosign-linux-amd64 asset name (requiring exactly one match), so a version bump updates BOTH lines together and the install gates never go stale (the git-cliff model). Filtering drops prereleases, drafts and assets with digest=null. Same 100-release horizon as git-cliff. The generic workflow tool-pin manager cannot double-match these sites because its datasource character class rejects the dot in custom.cosign; the cosign-installer sites keep datasource=github-releases and stay with it. cplieger/ci's scripts/test_root_free_installs.py (COSIGN_PIN) mirrors this manager's block shape \u2014 keep them in sync.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.cosign)\\s+depName=(?<depName>[^\\s]+)\\s*\\n\\s*COSIGN_VERSION[=:]\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s*\\n\\s*COSIGN_SHA256[=:]\\s*['\"]?(?<currentDigest>[a-f0-9]{64})"
       ],
       "versioningTemplate": "semver"
     },
