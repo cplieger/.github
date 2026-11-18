@@ -346,16 +346,12 @@
       "enabled": false
     },
     {
-      "description": "marotte and web-terminal-kiro stay on toolbelt v3 until each moves to httpserver v2. toolbelt v4 serves its API through httpserver v2, which changes the error body and how the request id is carried, so a v4 mounted in an httpserver v1 server answers with mismatched error bodies and request ids. Each repository takes toolbelt v4 in the same change as its own httpserver v2 move; remove its name here in that change, and the rule once the list is empty.",
+      "description": "marotte takes no toolbelt update until its own httpserver v2 move. toolbelt from v3.16 serves its API through httpserver v2, which changes the error body and how the request id is carried, so it would mount a v2 API inside marotte's httpserver v1 server. marotte takes toolbelt by hand in the same change as its httpserver v2 move, and that change removes this rule.",
       "matchRepositories": [
-        "cplieger/marotte",
-        "cplieger/web-terminal-kiro"
+        "cplieger/marotte"
       ],
       "matchPackageNames": [
         "github.com/cplieger/toolbelt/v3"
-      ],
-      "matchUpdateTypes": [
-        "major"
       ],
       "enabled": false
     },
