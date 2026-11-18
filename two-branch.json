@@ -346,6 +346,20 @@
       "enabled": false
     },
     {
+      "description": "marotte and web-terminal-kiro stay on toolbelt v3 until each moves to httpserver v2. toolbelt v4 serves its API through httpserver v2, which changes the error body and how the request id is carried, so a v4 mounted in an httpserver v1 server answers with mismatched error bodies and request ids. Each repository takes toolbelt v4 in the same change as its own httpserver v2 move; remove its name here in that change, and the rule once the list is empty.",
+      "matchRepositories": [
+        "cplieger/marotte",
+        "cplieger/web-terminal-kiro"
+      ],
+      "matchPackageNames": [
+        "github.com/cplieger/toolbelt/v3"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "description": "seadex-scout's main, the v2 line, stays on github.com/cplieger/animap/mapread v0.2. mapread v0.3.0 removed Routes.IMDb and Anime.IMDbIDs, which v2 still reads, so the update cannot compile on main, and the main intake lets a Renovate branch change only dependency files, never the code that would fix it. v0.2 reads current animap releases, because it skips members it does not know. Without this hold the update would keep the whole Saturday group red. dev is not held and takes v0.3 with the code that needs it. It stops matching once main pins mapread v0.3 or later, as it will when seadex-scout v3 is promoted; remove it then. allowedVersions is a range the Go module's semver versioning cannot read, so Renovate falls back to npm semver, which ignores the leading v.",
       "matchRepositories": [
         "cplieger/seadex-scout"
