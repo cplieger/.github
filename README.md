@@ -43,6 +43,6 @@ The reusable workflows and the lint and format configs the repositories share li
 - On `main`, only the updates Renovate merges automatically and that change what users receive, in one pull request each Saturday. Major updates, Go toolchain and base-image minor versions, `devDependencies`, files under example and test folders, workflow pins and lock-file maintenance stay on `dev`. Minor versions of the `renovate/renovate` base image still reach `main`.
 - On `main`, updates of the `ghcr.io/actions/actions-runner` base image, minor versions included, skip the Saturday pull request and open as soon as they are released. GitHub stops sending jobs to a self-hosted runner that has not taken a new runner release within 30 days. After a critical security release, it pauses jobs to older runners at once.
 - Vulnerability fixes open on both branches at once. Besides `security`, each one gets a label naming its update type, such as `security-patch`. A Go toolchain minor version gets `security-major`.
-- On both branches, an fclones update also rewrites the crate license files under `licenses/crates/` in the same commit, so the image build accepts it without a manual step.
+- On both branches, an fclones or ripgrep update also rewrites the crate license files under `licenses/crates/` in the same commit, so the image build accepts it without a manual step.
 
 This project was built with AI assistance. The human maintainer defines architecture, supervises implementation, and makes all final decisions.
