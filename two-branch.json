@@ -37,11 +37,12 @@
       ]
     },
     {
-      "description": "fclones' crate license tree is rewritten in the commit that moves the pin, on both branches: the arm64 build refuses a crate set that differs from licenses/crates/MANIFEST, and nothing but this commit may change that tree on main (the main intake accepts it only beside this pin's update). postUpgradeTasks is not merged across rules, so this rule replaces default.json's repin task for this one dependency and repeats its command first. Both commands must match the self-hosted Renovate's allowedCommands; a failing one records an artifactError, which holds the pull request for a human.",
+      "description": "A Rust upstream's committed crate license tree (docker-fclones-scheduler's fclones, marotte's ripgrep) is rewritten in the commit that moves the pin, on both branches: the image build refuses a stale licenses/crates/MANIFEST (fclones' arm64 build diffs the crates it collects against it, marotte's build checks the version its first line names), and nothing but this commit may change that tree on main (the main intake accepts it only beside this pin's update). postUpgradeTasks is not merged across rules, so this rule runs default.json's repin command first: it replaces that rule's task for fclones and is ripgrep's only one. Both commands must match the self-hosted Renovate's allowedCommands; a failing one records an artifactError, which holds the pull request for a human.",
       "matchManagers": [
         "custom.regex"
       ],
       "matchDepNames": [
+        "BurntSushi/ripgrep",
         "pkolaczk/fclones"
       ],
       "postUpgradeTasks": {
