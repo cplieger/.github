@@ -305,6 +305,7 @@
         "net-snmp/net-snmp",
         "networkupstools/nut",
         "pkolaczk/fclones",
+        "postgres",
         "radvd-project/radvd",
         "stephane/libmodbus",
         "typescript",
